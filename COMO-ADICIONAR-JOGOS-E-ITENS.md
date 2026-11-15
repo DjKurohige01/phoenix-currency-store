@@ -1,71 +1,53 @@
-# Guia Rápido: Como Adicionar Novos Jogos, Currencies, Itens e Services
+# Guia Oficial — PhoenixStore (Loja de Currency, Itens, Services, 3 Perfis & Supabase)
 
-Toda a inteligência da loja fica centralizada em um único arquivo super fácil de editar:
-👉 **`phoenix-currency-store/catalog-config.js`**
-
-Você não precisa mexer no HTML para adicionar novos jogos, mudar preços de Divine Orb ou cadastrar novos Services (Leveling, Boost, Carry) e Itens!
+Este guia explica toda a estrutura da **PhoenixStore — Loja de Currency, Itens & Services** e como funcionam os **3 perfis de usuários (`Cliente`, `Vendedor` e `Administrador`)**, a **Ponte de Meio de Pagamento**, a **Página de Pós-Compra com Chat Direto** e o banco de dados **Supabase**.
 
 ---
 
-## 1. Como alterar o preço de uma Currency (ex: Divine Orb)
-Abra o arquivo `catalog-config.js`, procure pelo produto (ex: `id: "poe2-divine-orb"`) e mude apenas o campo `pricePerUnit`:
-```js
-pricePerUnit: 4.50, // Mude para o valor em R$ (ou coloque 0 para ficar "Sob Consulta")
-```
+## 1. Arquivos Principais do Projeto
+
+- [`index.html`](./index.html) — Página principal da loja com o Catálogo (PoE 2, PoE 1 e futuros jogos), Carrinho, Barra de Troca Rápida de Perfil e Painéis do Vendedor e Administrador.
+- [`pos-compra.html`](./pos-compra.html) — Página dedicada de **Pós-Compra**, para onde o cliente é encaminhado automaticamente após confirmar o pagamento. Exibe o agradecimento, status em tempo real da entrega em 4 etapas e o **Chat Direto com o Vendedor logado ou Administrador**.
+- [`supabase-schema.sql`](./supabase-schema.sql) — Script SQL completo com todas as tabelas PostgreSQL (`profiles`, `products`, `payment_settings`, `orders`, `order_messages`), políticas de segurança **Row Level Security (RLS)**, limites de caracteres contra injeção de scripts e ativação do **Supabase Realtime**.
+- [`phoenix-backend.js`](./phoenix-backend.js) — Motor de autenticação, controle de permissões por perfil, sanitização anti-XSS, ponte de pagamento e chat em tempo real.
+- [`phoenix-panels.js`](./phoenix-panels.js) — Interface dos modais de Login/Cadastro (sem cartão), Painel do Vendedor, Painel Supremo do Administrador e Checkout.
+- [`catalog-config.js`](./catalog-config.js) — Catálogo base de Jogos, Ligas, Categorias e Produtos com ícones oficiais em alta qualidade (`assets/icons/`).
 
 ---
 
-## 2. Como ativar ou adicionar um Novo Jogo (ex: Diablo IV, Last Epoch, WoW)
-Na lista `games: [ ... ]` do `catalog-config.js`, já deixamos **Diablo IV** e **Last Epoch** pré-configurados como `"em_breve"`.
-- Para ativar um deles, basta mudar:
-  ```js
-  status: "ativo", // antes estava "em_breve"
-  tag: "NOVO",
-  ```
-- Para criar um jogo totalmente novo, basta copiar um bloco:
-  ```js
-  {
-    id: "wow",
-    name: "World of Warcraft",
-    shortName: "WoW",
-    tag: "NOVO",
-    status: "ativo",
-    description: "Gold, Mythic+ Boost, Raid Carry e Leveling.",
-    leagues: [
-      { id: "wow-retail", name: "Retail — The War Within", badge: "Principal" },
-    ],
-  },
-  ```
+## 2. Como Funcionam os 3 Perfis de Usuários (Com RLS Ativo)
+
+### 👤 1. Perfil Cliente (`client`)
+- **Cadastro sem cartão:** Informa apenas Nome/Apelido, E-mail, Senha, Nick do Personagem (`IGN`) e WhatsApp opcional.
+- **Compra e Pós-Compra:** Escolhe as Currencies, Itens ou Services, passa pela Ponte de Pagamento e é redirecionado automaticamente para `pos-compra.html?order=PHX-...`.
+- **Chat Direto no Site:** Na página de Pós-Compra, conversa ao vivo com o Vendedor responsável ou Administrador para alinhar os detalhes da entrega no Hideout.
+
+### 🛠️ 2. Perfil Vendedor (`seller`) — Funcionário
+- **O que PODE fazer:**
+  - Editar preços unitários (`R$`), quantidades mínimas e status de estoque dos produtos no catálogo (ou pelo botão `✏️ Editar Preço / Estoque` direto nos cards da loja).
+  - Cadastrar novos produtos/services no catálogo.
+  - Receber aviso sonoro e visual imediato quando cai uma nova compra paga.
+  - Assumir a entrega na fila, mudar o status (`Separando no Stash` → `No Hideout (Party Enviada)` → `Entregue`) e conversar com o comprador no **Chat Direto**.
+  - Visualizar na aba **"Minhas Vendas"** **apenas as vendas que ELE mesmo atendeu/entregou**.
+- **O que NÃO PODE fazer (Bloqueado no Front-end e no RLS do Supabase):**
+  - **Não tem acesso à base geral de clientes** (e-mails, cadastros gerais).
+  - **Não vê vendas de outros vendedores**.
+  - **Não tem acesso ao Balanço de Valores / Faturamento Global da loja**.
+  - **Não pode alterar a Chave PIX ou o link do meio de pagamento**.
+
+### 👑 3. Perfil Administrador (`admin`) — Dono da Loja (Permissão Suprema)
+- **Acesso Total Irrestrito:**
+  - **Balanço Geral & Valores:** Faturamento Líquido Confirmado, Faturamento Bruto, Descontos PIX, Ticket Médio, Ranking de Vendas por Vendedor e Faturamento por Jogo (PoE 2 vs PoE 1).
+  - **Histórico Geral de Compras & Todos os Chats:** Vê todos os pedidos da loja inteira e pode entrar e responder em qualquer chat de pós-compra.
+  - **Catálogo Completo:** Edita preços/estoque e adiciona novos itens.
+  - **Base de Clientes & Equipe:** Vê todos os clientes e vendedores cadastrados, altera permissões (`Cliente` ↔ `Vendedor` ↔ `Administrador`) e cadastra novos funcionários.
+  - **Meio de Pagamento Blindado & Conexão Supabase:** Altera a Chave PIX / Titular / Link de Gateway externo e configura a URL + Anon Key do Supabase.
 
 ---
 
-## 3. Como adicionar um Novo Item ou Service (Leveling, Boost, Carry)
-Na lista `products: [ ... ]` do `catalog-config.js`, basta colar um novo bloco apontando para a categoria desejada:
-- `categoryId: "currency"` → Aparece na aba **Currency (Moedas)**
-- `categoryId: "services"` → Aparece na aba **Services & Boost** (Leveling, Rush, Boss Carry)
-- `categoryId: "items"` → Aparece na aba **Itens & Equips** (Mageblood, Headhunter, Builds)
+## 4. Como Conectar seu Projeto no Supabase (`DjKurohige01`)
 
-Exemplo de novo Service de Boost:
-```js
-{
-  id: "poe2-boss-carry-pinnacle",
-  gameId: "poe2",             // "poe2", "poe1", "diablo4", etc.
-  categoryId: "services",     // "currency", "services" ou "items"
-  name: "Pinnacle Boss Carry (Arbiter of Ash / Xesht)",
-  subtitle: "Derrotamos qualquer Boss Endgame na sua instância com loot 100% seu",
-  badge: "Loot Seu",
-  featured: true,
-  pricePerUnit: 45.00,        // Coloque 0 se quiser "Sob Consulta"
-  unitLabel: "1x Boss Kill",
-  minQty: 1,
-  stepQty: 1,
-  quickPresets: [1, 2, 5],
-  stockStatus: "Carry Online Agora",
-  iconType: "service-boost",  // orb-divine, orb-exalted, orb-chaos, service-boost, service-leveling, item-unique
-  rarityColor: "orange",      // amber, orange, purple, red, cyan
-  highlights: [
-    "Você entra no final para pegar os pontos do Atlas e o Loot",
-    "Execução em menos de 5 minutos",
-  ],
-},
-```
+1. No painel do Supabase (`https://supabase.com/dashboard`), clique em **New organization** e depois em **New project** (ex: `phoenix-currency-store`).
+2. No menu lateral esquerdo do Supabase, abra **SQL Editor** → **New query**.
+3. Copie todo o conteúdo do arquivo [`supabase-schema.sql`](./supabase-schema.sql), cole no editor e clique em **Run**.
+4. Vá em **Project Settings → API**, copie a **Project URL** e a chave **anon public** e cole na aba **"🔐 Meio de Pagamento & Supabase"** dentro do **Painel Supremo do Administrador** (ou conecte o plugin oficial do Supabase aqui no Antigravity para que eu configure tudo automaticamente na sua conta!).
