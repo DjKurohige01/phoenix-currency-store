@@ -602,8 +602,11 @@
       <span id="toast-message">Adicionado ao carrinho!</span>
     </div>
 
-    <!-- Carrega o arquivo externo de configuração (se existir na pasta) -->
+    <!-- Carrega o SDK do Supabase e os módulos de configuração, backend (3 perfis + RLS) e painéis -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./catalog-config.js"></script>
+    <script src="./phoenix-backend.js"></script>
+    <script src="./phoenix-panels.js"></script>
 
     <!-- Lógica da Loja (Modular para adicionar mais Jogos, Currency, Itens e Services) -->
     <script>
@@ -1026,6 +1029,7 @@
       };
 
       const STORE = window.PHOENIX_STORE_DATA || DEFAULT_STORE_DATA;
+      window.PHOENIX_STORE_DATA = STORE;
 
       // Estado atual de navegação e carrinho
       const state = {
@@ -1036,6 +1040,7 @@
         quantities: {}, // { [productId]: number }
         cart: [], // [{ product, game, league, qty }]
       };
+      window.state = state;
 
       // Inicializa quantidades padrão de cada produto
       STORE.products.forEach((p) => {
@@ -1810,6 +1815,8 @@
         renderProductsGrid();
         renderCart();
       }
+      window.renderAll = renderAll;
+      window.showToast = showToast;
 
       // Inicialização
       renderAll();

@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="pt-BR" class="dark scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pós-Compra & Chat Direto de Entrega — PhoenixStore</title>
+    <link rel="icon" href="./assets/favicon.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      tailwind.config = {
+        darkMode: ["class"],
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Poppins", "system-ui", "sans-serif"],
+            },
+            colors: {
+              background: "hsl(240 10% 4%)",
+              foreground: "hsl(0 0% 96%)",
+              card: "hsl(240 6% 8%)",
+              "card-foreground": "hsl(0 0% 96%)",
+              primary: "hsl(24 95% 53%)",
+              "primary-foreground": "hsl(0 0% 100%)",
+              secondary: "hsl(0 0% 14%)",
+              muted: "hsl(0 0% 12%)",
+              "muted-foreground": "hsl(0 0% 62%)",
+              border: "hsl(0 0% 15%)",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      :root {
+        --background: 240 10% 4%;
+        --foreground: 0 0% 96%;
+        --card: 240 6% 8%;
+        --primary: 24 95% 53%;
+        --primary-foreground: 0 0% 100%;
+        --muted: 0 0% 12%;
+        --muted-foreground: 0 0% 62%;
+        --border: 0 0% 15%;
+      }
+      * {
+        border-color: hsl(var(--border));
+      }
+      body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-family: "Poppins", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .glow-btn {
+        transition: all 0.25s ease;
+      }
+      .glow-btn:hover {
+        box-shadow: 0 0 28px hsl(var(--primary) / 0.55);
+        transform: translateY(-1px);
+      }
+    </style>
+  </head>
+  <body class="relative isolate min-h-screen overflow-x-hidden bg-transparent text-foreground">
+    <!-- Background PhoenixStore -->
+    <div class="fixed inset-0 -z-10 bg-background" aria-hidden="true">
+      <img src="./assets/bg.jpg" alt="" class="h-full w-full object-cover object-center opacity-85" />
+      <div class="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/95"></div>
+    </div>
+
+    <!-- Barra Topo de Segurança e Sincronização -->
+    <div class="border-b border-primary/30 bg-primary/10 px-4 py-2 text-xs text-white backdrop-blur">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span><strong>Canal Pós-Compra Seguro:</strong> Conectado em tempo real com Vendedor & Administrador</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <a
+            href="./index.html"
+            class="inline-flex items-center gap-1.5 font-bold text-primary hover:underline"
+          >
+            <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i> Voltar para a Loja
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header class="border-b border-border/70 bg-background/85 backdrop-blur-md">
+      <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+        <a href="./index.html" class="flex items-center gap-3">
+          <img src="./assets/phoenix-logo.png" alt="PhoenixStore" class="h-10 w-auto" />
+          <span class="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">
+            Pós-Compra & Entrega
+          </span>
+        </a>
+
+        <!-- Seletor de Outros Pedidos do Usuário -->
+        <div class="flex items-center gap-3">
+          <label for="order-selector" class="hidden text-xs font-semibold text-muted-foreground sm:inline">
+            Pedido Ativo:
+          </label>
+          <select
+            id="order-selector"
+            class="rounded-xl border border-border bg-card px-3 py-2 text-xs font-bold text-white focus:border-primary focus:outline-none"
+          ></select>
+        </div>
+      </div>
+    </header>
+
+    <!-- Conteúdo Principal Pós-Compra -->
+    <main class="mx-auto max-w-6xl px-6 py-8">
+      <!-- Banner de Agradecimento pela Compra -->
+      <section class="rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/40 via-card/95 to-card/90 p-6 shadow-[0_0_50px_-20px_rgba(16,185,129,0.35)] backdrop-blur md:p-8">
+        <div class="flex flex-col justify-between gap-6 md:flex-row md:items-center">
+          <div class="flex items-start gap-4">
+            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/50 bg-emerald-500/15 text-emerald-400">
+              <i data-lucide="check-circle-2" class="h-8 w-8"></i>
+            </div>
+            <div>
+              <div class="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-emerald-300">
+                Pagamento Confirmado • Entrega Prioritária
+              </div>
+              <h1 class="mt-2 text-2xl font-black text-white md:text-3xl">
+                Obrigado pela sua compra na <span class="text-primary">PhoenixStore</span>!
+              </h1>
+              <p class="mt-1 text-sm text-muted-foreground">
+                Seu pedido <strong id="header-order-code" class="text-white">#PHX-0000</strong> já foi enviado para a nossa equipe. Utilize o <strong>Chat Direto abaixo</strong> para falar com o Vendedor ou Administrador e combinar a entrega no seu Hideout!
+              </p>
+            </div>
+          </div>
+
+          <div class="flex shrink-0 flex-col items-start gap-1 rounded-xl border border-border bg-background/80 px-5 py-3.5 md:items-end">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Status Atual da Entrega</span>
+            <span id="header-delivery-badge" class="inline-flex items-center gap-2 text-sm font-extrabold text-primary">
+              <span class="h-2.5 w-2.5 rounded-full bg-primary animate-ping"></span>
+              Aguardando Vendedor
+            </span>
+            <span id="header-seller-name" class="text-xs text-muted-foreground">Atendente: Conectando...</span>
+          </div>
+        </div>
+
+        <!-- Stepper de Progresso da Entrega em 4 Etapas -->
+        <div id="delivery-stepper" class="mt-7 grid grid-cols-2 gap-3 border-t border-border/80 pt-6 sm:grid-cols-4">
+          <!-- Renderizado via JS -->
+        </div>
+      </section>
+
+      <!-- Grid Principal: Coluna Esquerda (Detalhes do Pedido + Regra Trade Seguro) | Coluna Direita (Chat Direto no Site) -->
+      <div class="mt-8 grid gap-6 lg:grid-cols-12">
+        <!-- Coluna Esquerda: Resumo da Compra (5 colunas) -->
+        <div class="space-y-6 lg:col-span-5">
+          <!-- Card Dados da Entrega In-Game -->
+          <div class="rounded-2xl border border-border bg-card/90 p-6 backdrop-blur">
+            <div class="flex items-center justify-between border-b border-border pb-4">
+              <h2 class="flex items-center gap-2 text-base font-extrabold text-white">
+                <i data-lucide="package-check" class="h-5 w-5 text-primary"></i>
+                Resumo do Pedido
+              </h2>
+              <span id="summary-order-date" class="text-xs text-muted-foreground">Hoje</span>
+            </div>
+
+            <div class="mt-4 space-y-3 text-sm">
+              <div class="flex justify-between rounded-xl border border-border/70 bg-background/70 px-3.5 py-2.5">
+                <span class="text-muted-foreground">Personagem (IGN):</span>
+                <span id="summary-client-ign" class="font-extrabold text-primary">---</span>
+              </div>
+              <div class="flex justify-between rounded-xl border border-border/70 bg-background/70 px-3.5 py-2.5">
+                <span class="text-muted-foreground">Jogo / Servidor:</span>
+                <span id="summary-game-league" class="font-bold text-white">---</span>
+              </div>
+              <div class="flex justify-between rounded-xl border border-border/70 bg-background/70 px-3.5 py-2.5">
+                <span class="text-muted-foreground">Meio de Pagamento:</span>
+                <span id="summary-payment-method" class="font-semibold text-emerald-400">---</span>
+              </div>
+              <div class="flex justify-between rounded-xl border border-border/70 bg-background/70 px-3.5 py-2.5">
+                <span class="text-muted-foreground">Vendedor Responsável:</span>
+                <span id="summary-seller-assigned" class="font-bold text-white">---</span>
+              </div>
+            </div>
+
+            <!-- Lista de Itens Comprados -->
+            <div class="mt-5">
+              <h3 class="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
+                Itens da Compra
+              </h3>
+              <div id="summary-items-list" class="mt-2.5 space-y-2">
+                <!-- Preenchido via JS -->
+              </div>
+            </div>
+
+            <!-- Total Pago -->
+            <div class="mt-5 flex items-center justify-between border-t border-border pt-4">
+              <span class="text-sm font-bold text-muted-foreground">Valor Total Confirmado:</span>
+              <span id="summary-total-brl" class="text-xl font-black text-primary">R$ 0,00</span>
+            </div>
+          </div>
+
+          <!-- Card Regra de Ouro de Segurança no Trade -->
+          <div class="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-5 backdrop-blur">
+            <div class="flex items-start gap-3">
+              <i data-lucide="shield-alert" class="mt-0.5 h-5 w-5 shrink-0 text-amber-400"></i>
+              <div class="text-xs leading-relaxed text-amber-100/90">
+                <p class="font-extrabold uppercase tracking-wider text-amber-300">
+                  Importante para sua Segurança In-Game:
+                </p>
+                <ul class="mt-2 list-disc space-y-1 pl-4">
+                  <li>
+                    Ao abrir a janela de Trade com nosso vendedor no Hideout, <strong>sempre coloque 1 item Raro (amarelo) qualquer</strong> na sua janela de troca.
+                  </li>
+                  <li>
+                    <strong>Nunca cite compras ou valores no chat dentro do jogo.</strong> Qualquer dúvida, fale exclusivamente pelo <strong>Chat Direto ao lado</strong>!
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna Direita: Chat Direto com Vendedor / Administrador (7 colunas) -->
+        <div class="flex flex-col lg:col-span-7">
+          <div class="flex h-[620px] flex-col rounded-2xl border border-primary/40 bg-card/95 shadow-[0_0_50px_-20px_hsl(var(--primary)/0.35)] backdrop-blur">
+            <!-- Topo do Chat -->
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="relative flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                  <i data-lucide="messages-square" class="h-5 w-5"></i>
+                  <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-emerald-400"></span>
+                </div>
+                <div>
+                  <h2 class="text-base font-extrabold text-white">
+                    Chat Direto da Compra <span id="chat-order-code-tag" class="text-primary">#PHX</span>
+                  </h2>
+                  <p id="chat-subtitle-status" class="text-xs text-emerald-400">
+                    ● Vendedor / Administrador online — histórico salvo em tempo real
+                  </p>
+                </div>
+              </div>
+
+              <!-- Botão para testar visão do Vendedor/Admin em nova aba -->
+              <a
+                href="./index.html?openPanel=seller"
+                target="_blank"
+                class="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                title="Abra o Painel do Vendedor em outra aba para testar os dois lados conversando ao vivo!"
+              >
+                <i data-lucide="external-link" class="h-3.5 w-3.5"></i>
+                Abrir Visão Vendedor/Admin
+              </a>
+            </div>
+
+            <!-- Área de Mensagens do Chat -->
+            <div
+              id="chat-messages-container"
+              class="flex-1 space-y-3.5 overflow-y-auto p-6"
+            >
+              <!-- Renderizado via JS -->
+            </div>
+
+            <!-- Botões de Mensagem Rápida para o Cliente -->
+            <div class="border-t border-border/70 bg-background/60 px-4 py-2.5">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mr-1">
+                  Atalhos rápidos:
+                </span>
+                <button
+                  type="button"
+                  data-quick-msg="Opa! Já estou online esperando no meu Hideout. Pode mandar party!"
+                  class="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary hover:text-white"
+                >
+                  👋 Já estou no Hideout!
+                </button>
+                <button
+                  type="button"
+                  data-quick-msg="Já separei 1 item Raro amarelo para colocar na janela de trade!"
+                  class="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary hover:text-white"
+                >
+                  🛡️ Já tenho item Raro pro trade
+                </button>
+                <button
+                  type="button"
+                  data-quick-msg="Preciso confirmar meu IGN correto, segue abaixo:"
+                  class="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary hover:text-white"
+                >
+                  ✏️ Atualizar meu IGN
+                </button>
+              </div>
+            </div>
+
+            <!-- Formulário de Envio de Mensagem (Com Limite de Caracteres Anti-XSS) -->
+            <form id="chat-send-form" class="border-t border-border bg-background/95 p-4">
+              <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                  <input
+                    id="chat-input"
+                    type="text"
+                    maxlength="500"
+                    autocomplete="off"
+                    placeholder="Digite sua mensagem para o Vendedor ou Administrador (máx. 500 caracteres)..."
+                    class="w-full rounded-xl border border-border bg-card py-3 pl-4 pr-16 text-sm text-white placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+                  />
+                  <span
+                    id="chat-char-counter"
+                    class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-muted-foreground"
+                  >
+                    0/500
+                  </span>
+                </div>
+                <button
+                  type="submit"
+                  class="glow-btn inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground"
+                >
+                  <i data-lucide="send" class="h-4 w-4"></i>
+                  <span class="hidden sm:inline">Enviar</span>
+                </button>
+              </div>
+            </form>
+
+            <!-- Barra de Simulação para Testes (Permite simular resposta imediata do Vendedor ou Admin) -->
+            <div class="flex flex-wrap items-center justify-between gap-2 rounded-b-2xl border-t border-border/60 bg-muted/60 px-4 py-2 text-[11px] text-muted-foreground">
+              <span>
+                💡 <strong>Modo Demonstração:</strong> Quer testar a resposta da equipe aqui mesmo?
+              </span>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  id="sim-seller-reply-btn"
+                  class="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 font-bold text-emerald-300 hover:bg-emerald-500/20"
+                >
+                  Simular Resposta do Vendedor
+                </button>
+                <button
+                  type="button"
+                  id="sim-admin-reply-btn"
+                  class="rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 font-bold text-amber-300 hover:bg-amber-500/20"
+                >
+                  Simular Mensagem do Admin
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="./phoenix-backend.js"></script>
+    <script>
+      const PB = window.PhoenixBackend;
+      const params = new URLSearchParams(window.location.search);
+      let activeOrderCode = params.get("order") || "";
+
+      function formatBRL(value) {
+        return (Number(value) || 0).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        });
+      }
+
+      function formatTime(isoStr) {
+        try {
+          const d = new Date(isoStr);
+          return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+        } catch (_) {
+          return "";
+        }
+      }
+
+      function resolveActiveOrder() {
+        const visible = PB.getVisibleOrdersForCurrentUser();
+        if (activeOrderCode) {
+          const found = PB.getOrderByCodeOrId(activeOrderCode);
+          if (found) return found;
+        }
+        if (visible.length > 0) {
+          activeOrderCode = visible[0].orderCode;
+          return visible[0];
+        }
+        const fallback = PB.getOrderByCodeOrId("PHX-9041");
+        if (fallback) {
+          activeOrderCode = fallback.orderCode;
+          return fallback;
+        }
+        return null;
+      }
+
+      function renderOrderSelector() {
+        const select = document.getElementById("order-selector");
+        const visible = PB.getVisibleOrdersForCurrentUser();
+        const currentOrder = resolveActiveOrder();
+        const list = visible.length > 0 ? visible : currentOrder ? [currentOrder] : [];
+
+        select.innerHTML = list
+          .map(
+            (o) =>
+              `<option value="${PB.escapeHtml(o.orderCode)}" ${
+                o.orderCode === activeOrderCode ? "selected" : ""
+              }>#${PB.escapeHtml(o.orderCode)} — ${PB.escapeHtml(o.clientIgn)} (${formatBRL(o.total)})</option>`
+          )
+          .join("");
+
+        select.onchange = (e) => {
+          activeOrderCode = e.target.value;
+          const url = new URL(window.location.href);
+          url.searchParams.set("order", activeOrderCode);
+          window.history.replaceState({}, "", url);
+          renderPage();
+        };
+      }
+
+      function renderDeliveryStepper(status) {
+        const steps = [
+          { key: "created", label: "01. Pedido Criado", desc: "Itens registrados" },
+          { key: "paid", label: "02. Pagamento OK", desc: "Confirmado no sistema" },
+          { key: "in_hideout", label: "03. No Hideout", desc: "Vendedor enviou Party" },
+          { key: "delivered", label: "04. Entregue", desc: "Trade concluído!" },
+        ];
+
+        let activeIndex = 1; // Por padrão após pagamento já está na etapa 2
+        if (status === "seller_assigned") activeIndex = 1;
+        if (status === "in_hideout") activeIndex = 2;
+        if (status === "delivered") activeIndex = 3;
+
+        const container = document.getElementById("delivery-stepper");
+        container.innerHTML = steps
+          .map((s, idx) => {
+            const done = idx <= activeIndex;
+            const current = idx === activeIndex;
+            return `
+              <div class="rounded-xl border p-3.5 transition-all ${
+                current
+                  ? "border-primary bg-primary/15 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)]"
+                  : done
+                  ? "border-emerald-500/40 bg-emerald-500/10"
+                  : "border-border bg-background/60 opacity-60"
+              }">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-extrabold ${
+                    current ? "text-primary" : done ? "text-emerald-400" : "text-muted-foreground"
+                  }">${s.label}</span>
+                  <i data-lucide="${done ? "check-circle" : "clock"}" class="h-4 w-4 ${
+              current ? "text-primary" : done ? "text-emerald-400" : "text-muted-foreground"
+            }"></i>
+                </div>
+                <p class="mt-1 text-[11px] text-muted-foreground">${s.desc}</p>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      function renderOrderDetails(order) {
+        if (!order) return;
+
+        document.getElementById("header-order-code").textContent = `#${order.orderCode}`;
+        document.getElementById("chat-order-code-tag").textContent = `#${order.orderCode}`;
+        document.getElementById("summary-client-ign").textContent = order.clientIgn;
+        document.getElementById("summary-game-league").textContent = `${order.gameName} • ${order.leagueName}`;
+        document.getElementById("summary-payment-method").textContent = `${order.paymentMethod} (Pago)`;
+        document.getElementById("summary-seller-assigned").textContent =
+          order.sellerName || "Aguardando Vendedor da Fila...";
+        document.getElementById("header-seller-name").textContent = order.sellerName
+          ? `Atendido por: ${order.sellerName}`
+          : "Notificando vendedores online...";
+
+        const statusMap = {
+          paid_waiting_seller: "Aguardando Vendedor Assumir",
+          seller_assigned: "Vendedor Separando no Stash",
+          in_hideout: "Vendedor no Hideout (Aceite a Party!)",
+          delivered: "Pedido Entregue com Sucesso ✓",
+          cancelled: "Pedido Cancelado",
+        };
+        document.getElementById("header-delivery-badge").innerHTML = `
+          <span class="h-2.5 w-2.5 rounded-full ${
+            order.deliveryStatus === "delivered" ? "bg-emerald-400" : "bg-primary animate-ping"
+          }"></span>
+          ${PB.escapeHtml(statusMap[order.deliveryStatus] || "Pagamento Confirmado")}
+        `;
+
+        renderDeliveryStepper(order.deliveryStatus);
+
+        const itemsEl = document.getElementById("summary-items-list");
+        itemsEl.innerHTML = (order.items || [])
+          .map(
+            (item) => `
+              <div class="flex items-center justify-between rounded-xl border border-border bg-background/80 px-3.5 py-2.5 text-xs">
+                <div>
+                  <p class="font-bold text-white">${PB.escapeHtml(item.qty)}x ${PB.escapeHtml(item.name)}</p>
+                  <p class="text-[11px] text-muted-foreground">${PB.escapeHtml(item.unitLabel || "")}</p>
+                </div>
+                <span class="font-extrabold text-primary">
+                  ${item.lineTotal > 0 ? formatBRL(item.lineTotal) : "Sob Consulta"}
+                </span>
+              </div>
+            `
+          )
+          .join("");
+
+        document.getElementById("summary-total-brl").textContent =
+          order.total > 0 ? formatBRL(order.total) : "Sob Consulta";
+      }
+
+      function renderChatMessages(order) {
+        const container = document.getElementById("chat-messages-container");
+        if (!order) {
+          container.innerHTML = `<p class="text-center text-sm text-muted-foreground">Nenhum pedido selecionado.</p>`;
+          return;
+        }
+
+        const messages = PB.getOrderMessages(order.orderCode);
+        const currentUser = PB.getCurrentUser();
+
+        container.innerHTML = messages
+          .map((m) => {
+            if (m.senderRole === "system") {
+              return `
+                <div class="mx-auto max-w-xl rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-center text-xs text-amber-100">
+                  <span class="font-extrabold text-primary">⚡ ${PB.escapeHtml(m.senderName)}:</span>
+                  ${PB.escapeHtml(m.message)}
+                  <span class="ml-1 text-[10px] opacity-70">(${formatTime(m.createdAt)})</span>
+                </div>
+              `;
+            }
+
+            const isClientMsg = m.senderRole === "client";
+            const roleBadge =
+              m.senderRole === "admin"
+                ? `<span class="rounded bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-extrabold uppercase text-amber-300">ADMIN SUPREMO</span>`
+                : m.senderRole === "seller"
+                ? `<span class="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-extrabold uppercase text-emerald-300">VENDEDOR OFICIAL</span>`
+                : `<span class="rounded bg-primary/20 px-1.5 py-0.5 text-[9px] font-extrabold uppercase text-primary">COMPRADOR</span>`;
+
+            return `
+              <div class="flex flex-col ${isClientMsg ? "items-end" : "items-start"}">
+                <div class="mb-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <span class="font-bold text-white">${PB.escapeHtml(m.senderName)}</span>
+                  ${roleBadge}
+                  <span>• ${formatTime(m.createdAt)}</span>
+                </div>
+                <div class="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                  isClientMsg
+                    ? "rounded-tr-xs bg-primary text-primary-foreground font-medium"
+                    : m.senderRole === "admin"
+                    ? "rounded-tl-xs border border-amber-500/40 bg-amber-950/40 text-white"
+                    : "rounded-tl-xs border border-emerald-500/40 bg-secondary text-white"
+                }">
+                  ${PB.escapeHtml(m.message)}
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+
+        container.scrollTop = container.scrollHeight;
+      }
+
+      function renderPage() {
+        const order = resolveActiveOrder();
+        renderOrderSelector();
+        renderOrderDetails(order);
+        renderChatMessages(order);
+        lucide.createIcons();
+      }
+
+      // Contador de caracteres do input
+      const chatInput = document.getElementById("chat-input");
+      const charCounter = document.getElementById("chat-char-counter");
+      chatInput.addEventListener("input", () => {
+        charCounter.textContent = `${chatInput.value.length}/500`;
+      });
+
+      // Envio de mensagem no chat
+      document.getElementById("chat-send-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (!text) return;
+        const order = resolveActiveOrder();
+        if (!order) return;
+
+        PB.sendOrderChatMessage(order.orderCode, text);
+        chatInput.value = "";
+        charCounter.textContent = "0/500";
+        renderChatMessages(order);
+      });
+
+      // Botões de mensagem rápida
+      document.querySelectorAll("[data-quick-msg]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const msg = btn.getAttribute("data-quick-msg");
+          chatInput.value = msg;
+          chatInput.focus();
+          charCounter.textContent = `${chatInput.value.length}/500`;
+        });
+      });
+
+      // Simulação de resposta do Vendedor e Admin para facilitar testes imediatos
+      document.getElementById("sim-seller-reply-btn").addEventListener("click", () => {
+        const order = resolveActiveOrder();
+        if (!order) return;
+        PB.updateOrderStatus(order.orderCode, "in_hideout");
+        PB.sendOrderChatMessage(
+          order.orderCode,
+          `Olá! Aqui é o vendedor responsável pelo seu pedido #${order.orderCode}. Já estou com seus itens separados no Stash e acabei de enviar Party para "${order.clientIgn}"! Venha para o meu Hideout e coloque 1 item raro amarelo qualquer no trade.`,
+          false,
+          "seller"
+        );
+        PB.playNotificationSound();
+        renderPage();
+      });
+
+      document.getElementById("sim-admin-reply-btn").addEventListener("click", () => {
+        const order = resolveActiveOrder();
+        if (!order) return;
+        PB.sendOrderChatMessage(
+          order.orderCode,
+          `Olá! Aqui é a Administração da PhoenixStore acompanhando seu pedido #${order.orderCode}. Qualquer dúvida adicional ou encomenda extra, estamos à disposição!`,
+          false,
+          "admin"
+        );
+        PB.playNotificationSound();
+        renderPage();
+      });
+
+      // Escuta eventos em tempo real vindos de outras abas (ex: Vendedor ou Admin respondendo)
+      PB.onRealtimeEvent((ev) => {
+        if (
+          ev.type === "NEW_CHAT_MESSAGE" ||
+          ev.type === "ORDER_STATUS_UPDATED" ||
+          ev.type === "STORAGE_SYNC"
+        ) {
+          PB.playNotificationSound();
+          renderPage();
+        }
+      });
+
+      renderPage();
+    </script>
+  </body>
+</html>
