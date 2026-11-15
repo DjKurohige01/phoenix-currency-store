@@ -64,9 +64,26 @@
   const uiState = {
     activeDashboardTab: "orders", // 'orders' | 'catalog' | 'my_sales' | 'admin_finance' | 'admin_users' | 'admin_settings'
     selectedChatOrderCode: "PHX-9041",
-    authTab: "login", // 'login' | 'register'
+    authTab: "register", // 'login' | 'register'
     pendingCheckoutPayload: null,
   };
+
+  function isPureCustomerMode() {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get("visao") === "cliente" || p.get("cliente") === "1") {
+        sessionStorage.setItem("phoenix_pure_customer_mode", "1");
+        return true;
+      }
+      if (p.get("openPanel") || p.get("painel") === "equipe") {
+        sessionStorage.removeItem("phoenix_pure_customer_mode");
+        return false;
+      }
+      return sessionStorage.getItem("phoenix_pure_customer_mode") === "1";
+    } catch (_) {
+      return false;
+    }
+  }
 
   function injectUIContainers() {
     // 1. Barra Superior de Demonstração / Troca Rápida entre os 3 Perfis
@@ -87,11 +104,20 @@
   }
 
   // ==========================================================================
-  // 1. BARRA SUPERIOR DE PERFIS (1 CLIQUE PARA TESTAR CLIENTE, VENDEDOR E ADMIN)
+  // 1. BARRA SUPERIOR DE PERFIS (OCULTA QUANDO O CLIENTE VEM DO GOOGLE)
   // ==========================================================================
   function renderRoleSwitcherBar() {
     const bar = document.getElementById("phoenix-role-switcher-bar");
     if (!bar) return;
+
+    // No modo Experiência Real de Cliente (vindo do Google), oculta a barra de testes de perfis
+    if (isPureCustomerMode()) {
+      bar.className = "hidden";
+      bar.innerHTML = "";
+      return;
+    }
+    bar.className = "border-b border-border bg-black/90 px-4 py-2 text-xs text-white backdrop-blur";
+
     const user = PB.getCurrentUser();
     const role = user ? user.role : "client";
     const sbConfig = PB.getSupabaseConfig();
@@ -524,38 +550,48 @@
             </button>
           </form>
 
-          <!-- Botões de Acesso Rápido às 3 Contas de Teste -->
-          <div class="mt-5 border-t border-border pt-4">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              Contas Prontas para Teste (1 Clique):
-            </p>
-            <div class="mt-2 grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                data-demo-login="client"
-                class="rounded-lg border border-border bg-background p-2 text-left text-[11px] hover:border-primary"
-              >
-                <span class="block font-extrabold text-primary">👤 Cliente</span>
-                <span class="text-[10px] text-muted-foreground">Compra & Chat</span>
-              </button>
-              <button
-                type="button"
-                data-demo-login="seller"
-                class="rounded-lg border border-border bg-background p-2 text-left text-[11px] hover:border-emerald-400"
-              >
-                <span class="block font-extrabold text-emerald-400">🛠️ Vendedor</span>
-                <span class="text-[10px] text-muted-foreground">Preços & Entrega</span>
-              </button>
-              <button
-                type="button"
-                data-demo-login="admin"
-                class="rounded-lg border border-border bg-background p-2 text-left text-[11px] hover:border-amber-400"
-              >
-                <span class="block font-extrabold text-amber-400">👑 Admin</span>
-                <span class="text-[10px] text-muted-foreground">Acesso Supremo</span>
-              </button>
-            </div>
-          </div>
+          <!-- Botões de Acesso Rápido às 3 Contas de Teste (Apenas fora do modo cliente puro) -->
+          ${
+            isPureCustomerMode()
+              ? `
+              <div class="mt-4 rounded-xl border border-border bg-background/70 p-3 text-center text-xs text-muted-foreground">
+                Primeira vez na PhoenixStore? Clique na aba <button type="button" data-auth-tab="register" class="font-bold text-primary underline">Cadastro de Cliente</button> acima para criar sua conta em segundos (sem cartão de crédito).
+              </div>
+            `
+              : `
+              <div class="mt-5 border-t border-border pt-4">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Contas Prontas para Teste (1 Clique):
+                </p>
+                <div class="mt-2 grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    data-demo-login="client"
+                    class="rounded-lg border border-border bg-background p-2 text-left text-[11px] hover:border-primary"
+                  >
+                    <span class="block font-extrabold text-primary">👤 Cliente</span>
+                    <span class="text-[10px] text-muted-foreground">Compra & Chat</span>
+                  </button>
+                  <button
+                    type="button"
+                    data-demo-login="seller"
+                    class="rounded-lg border border-border bg-background p-2 text-left text-[11px] hover:border-emerald-400"
+                  >
+                    <span class="block font-extrabold text-emerald-400">🛠️ Vendedor</span>
+                    <span class="text-[10px] text-muted-foreground">Preços & Entrega</span>
+                  </button>
+                  <button
+                    type="button"
+                    data-demo-login="admin"
+                    class="rounded-lg border border-border bg-background p-2 text-left text-[11px] hover:border-amber-400"
+                  >
+                    <span class="block font-extrabold text-amber-400">👑 Admin</span>
+                    <span class="text-[10px] text-muted-foreground">Acesso Supremo</span>
+                  </button>
+                </div>
+              </div>
+            `
+          }
         `
           : `
           <form id="auth-register-form" class="mt-4 space-y-3">
@@ -673,6 +709,12 @@
           if (typeof window.showToast === "function") {
             window.showToast(`Bem-vindo, ${user.fullName}!`);
           }
+          if (uiState.pendingCheckoutPayload) {
+            const payload = uiState.pendingCheckoutPayload;
+            uiState.pendingCheckoutPayload = null;
+            openPaymentBridgeModal(payload);
+            return;
+          }
           if (user.role === "seller" || user.role === "admin") {
             openDashboardModal();
           }
@@ -685,6 +727,10 @@
 
     const regForm = document.getElementById("auth-register-form");
     if (regForm) {
+      const regIgnInput = document.getElementById("reg-ign");
+      if (regIgnInput && uiState.pendingCheckoutPayload && uiState.pendingCheckoutPayload.clientIgn) {
+        regIgnInput.value = uiState.pendingCheckoutPayload.clientIgn;
+      }
       regForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const errEl = document.getElementById("auth-error-msg");
@@ -700,6 +746,14 @@
           refreshAllAuthUI();
           if (typeof window.showToast === "function") {
             window.showToast(`Conta criada com sucesso, ${user.fullName}!`);
+          }
+          if (uiState.pendingCheckoutPayload) {
+            const payload = uiState.pendingCheckoutPayload;
+            if (!payload.clientIgn && user.ignDefault) {
+              payload.clientIgn = user.ignDefault;
+            }
+            uiState.pendingCheckoutPayload = null;
+            openPaymentBridgeModal(payload);
           }
         } catch (err) {
           errEl.textContent = err.message;
@@ -845,7 +899,8 @@
         PB.playNotificationSound();
         closePaymentModal();
         // Redireciona o cliente para a página dedicada de Pós-Compra com o Chat Direto aberto!
-        window.location.href = `./pos-compra.html?order=${encodeURIComponent(createdOrder.orderCode)}`;
+        const suffix = isPureCustomerMode() ? "&visao=cliente" : "";
+        window.location.href = `./pos-compra.html?order=${encodeURIComponent(createdOrder.orderCode)}${suffix}`;
       } catch (err) {
         alert(err.message);
       }
@@ -2087,7 +2142,7 @@
       const discount = isPix ? subtotal * 0.05 : 0;
       const total = subtotal - discount;
 
-      openPaymentBridgeModal({
+      const checkoutPayload = {
         clientIgn,
         paymentMethod,
         gameId,
@@ -2097,7 +2152,21 @@
         subtotal,
         discount,
         total,
-      });
+      };
+
+      // Se o visitante vindo do Google ainda não se cadastrou/logou, abre o Cadastro Rápido de Cliente (sem cartão)
+      // e assim que concluir vai direto para a tela de pagamento PIX!
+      if (!user) {
+        uiState.pendingCheckoutPayload = checkoutPayload;
+        uiState.authTab = "register";
+        openAuthModal();
+        if (typeof window.showToast === "function") {
+          window.showToast("Crie sua conta rápida de cliente (sem cartão) para continuar ao pagamento!");
+        }
+        return;
+      }
+
+      openPaymentBridgeModal(checkoutPayload);
     });
 
     if (window.lucide) window.lucide.createIcons();

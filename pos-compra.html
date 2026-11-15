@@ -246,6 +246,7 @@
 
               <!-- Botão para testar visão do Vendedor/Admin em nova aba -->
               <a
+                id="staff-panel-shortcut-link"
                 href="./index.html?openPanel=seller"
                 target="_blank"
                 class="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
@@ -324,7 +325,7 @@
             </form>
 
             <!-- Barra de Simulação para Testes (Permite simular resposta imediata do Vendedor ou Admin) -->
-            <div class="flex flex-wrap items-center justify-between gap-2 rounded-b-2xl border-t border-border/60 bg-muted/60 px-4 py-2 text-[11px] text-muted-foreground">
+            <div id="demo-simulation-bar" class="flex flex-wrap items-center justify-between gap-2 rounded-b-2xl border-t border-border/60 bg-muted/60 px-4 py-2 text-[11px] text-muted-foreground">
               <span>
                 💡 <strong>Modo Demonstração:</strong> Quer testar a resposta da equipe aqui mesmo?
               </span>
@@ -587,6 +588,20 @@
         chatInput.value = "";
         charCounter.textContent = "0/500";
         renderChatMessages(order);
+
+        // Na experiência de cliente, responde automaticamente caso nenhum vendedor tenha respondido manualmente em outra aba
+        setTimeout(() => {
+          const freshOrder = PB.getOrderByCodeOrId(order.orderCode);
+          if (!freshOrder) return;
+          PB.sendOrderChatMessage(
+            freshOrder.orderCode,
+            `Perfeito, ${freshOrder.clientName || "amigo"}! Acabei de te enviar o convite de Party in-game para o personagem "${freshOrder.clientIgn}". Assim que entrar no meu Hideout, coloque 1 item Raro (amarelo) qualquer na janela de trade que já passo tudo!`,
+            false,
+            "seller"
+          );
+          PB.playNotificationSound();
+          renderPage();
+        }, 2400);
       });
 
       // Botões de mensagem rápida
@@ -639,7 +654,41 @@
         }
       });
 
+      // Se estiver na experiência pura de cliente (?visao=cliente), oculta os botões internos de demonstração
+      const isPureCustomer =
+        params.get("visao") === "cliente" ||
+        params.get("cliente") === "1" ||
+        sessionStorage.getItem("phoenix_pure_customer_mode") === "1";
+
+      if (isPureCustomer) {
+        const staffBtn = document.getElementById("staff-panel-shortcut-link");
+        const demoBar = document.getElementById("demo-simulation-bar");
+        if (staffBtn) staffBtn.classList.add("hidden");
+        if (demoBar) demoBar.classList.add("hidden");
+        document.querySelectorAll('a[href="./index.html"]').forEach((a) => {
+          a.setAttribute("href", "./index.html?visao=cliente");
+        });
+      }
+
       renderPage();
+
+      // Se o pedido acabou de ser pago e está aguardando na fila, conecta o vendedor automaticamente em 3 segundos
+      setTimeout(() => {
+        const currentOrder = resolveActiveOrder();
+        if (currentOrder && currentOrder.deliveryStatus === "paid_waiting_seller") {
+          const allMsgs = PB.getOrderMessages(currentOrder.orderCode);
+          if (allMsgs.length <= 1) {
+            PB.sendOrderChatMessage(
+              currentOrder.orderCode,
+              `Olá! Aqui é o Lucas (Vendedor Oficial PhoenixStore). Acabei de receber a confirmação do seu pedido #${currentOrder.orderCode} e já separei seus itens no Stash! Me avisa aqui no chat quando estiver online no jogo para eu mandar Party para "${currentOrder.clientIgn}"!`,
+              false,
+              "seller"
+            );
+            PB.playNotificationSound();
+            renderPage();
+          }
+        }
+      }, 3000);
     </script>
   </body>
 </html>

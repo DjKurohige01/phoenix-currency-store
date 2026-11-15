@@ -392,10 +392,18 @@
     if (!localStorage.getItem(STORAGE_KEYS.MESSAGES)) {
       localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(DEFAULT_MESSAGES));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.SESSION)) {
-      const clientUser = DEFAULT_USERS.find((u) => u.role === "client") || DEFAULT_USERS[0];
-      localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(clientUser));
-    }
+
+    // Se o usuário entrou pelo link de experiência real de cliente (?visao=cliente ou ?cliente=1),
+    // limpa qualquer sessão anterior de Admin/Vendedor para simular um visitante real vindo do Google
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("visao") === "cliente" || urlParams.get("cliente") === "1") {
+        localStorage.removeItem(STORAGE_KEYS.SESSION);
+        sessionStorage.setItem("phoenix_pure_customer_mode", "1");
+      } else if (urlParams.get("openPanel") || urlParams.get("painel") === "equipe") {
+        sessionStorage.removeItem("phoenix_pure_customer_mode");
+      }
+    } catch (_) {}
   }
 
   ensureSeedData();
