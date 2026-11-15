@@ -688,6 +688,41 @@
     return staff;
   }
 
+  /**
+   * Permite que o Administrador Supremo exclua qualquer usuário (Cliente, Vendedor ou outro Admin),
+   * protegendo apenas contra a exclusão da própria conta em que ele está logado no momento.
+   */
+  function deleteUserByAdmin(userId) {
+    const current = getCurrentUser();
+    if (!current || current.role !== "admin") {
+      throw new Error("Acesso negado: Apenas o Administrador pode excluir usuários.");
+    }
+    if (userId === current.id) {
+      throw new Error("Você não pode excluir a própria conta de Administrador em que está conectado no momento.");
+    }
+
+    const users = getAllUsersInternal();
+    const target = users.find((u) => u.id === userId);
+    if (!target) {
+      throw new Error("Usuário não encontrado.");
+    }
+
+    const filtered = users.filter((u) => u.id !== userId);
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(filtered));
+
+    if (supabaseClient) {
+      supabaseClient
+        .from("profiles")
+        .delete()
+        .eq("id", userId)
+        .then(() => {})
+        .catch(() => {});
+    }
+
+    emitRealtimeEvent("USERS_UPDATED", { deletedUserId: userId, deletedName: target.fullName });
+    return target;
+  }
+
   // ==========================================================================
   // GESTÃO DE PREÇOS, QUANTIDADES E CATÁLOGO (PERMITIDO PARA VENDEDOR E ADMIN)
   // ==========================================================================
@@ -1273,6 +1308,7 @@
     getUsersForAdmin,
     updateUserRoleByAdmin,
     createStaffUserByAdmin,
+    deleteUserByAdmin,
     getMergedCatalogProducts,
     updateProductPricingAndStock,
     addCustomProduct,

@@ -1713,12 +1713,13 @@
   // --------------------------------------------------------------------------
   function renderDashboardAdminUsersTab(container) {
     const users = PB.getUsersForAdmin();
+    const currentUser = PB.getCurrentUser();
 
     container.innerHTML = `
       <div class="mb-5 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs">
         <strong class="text-amber-300 text-sm">👥 Base Completa de Clientes & Equipe (Exclusivo Administrador)</strong>
         <p class="mt-0.5 text-muted-foreground">
-          O Vendedor <strong>não tem acesso</strong> a esta base de clientes. Aqui você pode visualizar todos os clientes cadastrados, promover um usuário para <strong>Vendedor</strong> ou cadastrar novos funcionários.
+          O Vendedor <strong>não tem acesso</strong> a esta base de clientes. Aqui você pode visualizar todos os clientes cadastrados, promover um usuário para <strong>Vendedor</strong>, cadastrar novos funcionários ou <strong>excluir usuários</strong>.
         </p>
       </div>
 
@@ -1749,44 +1750,71 @@
               <th class="px-4 py-3">E-mail</th>
               <th class="px-4 py-3">IGN / WhatsApp</th>
               <th class="px-4 py-3">Perfil Atual</th>
-              <th class="px-4 py-3 text-right">Alterar Permissão</th>
+              <th class="px-4 py-3 text-right">Permissão & Ações</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border/60">
             ${users
-              .map(
-                (u) => `
-                <tr class="hover:bg-card/60">
-                  <td class="px-4 py-3 font-bold text-white">${PB.escapeHtml(u.fullName)}</td>
-                  <td class="px-4 py-3 text-muted-foreground">${PB.escapeHtml(u.email)}</td>
-                  <td class="px-4 py-3 text-muted-foreground">
-                    <span class="text-primary font-semibold">${PB.escapeHtml(u.ignDefault || "-")}</span>
-                    ${u.whatsapp ? ` • ${PB.escapeHtml(u.whatsapp)}` : ""}
-                  </td>
-                  <td class="px-4 py-3">
-                    <span class="rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase ${
-                      u.role === "admin"
-                        ? "bg-amber-500/20 text-amber-300"
-                        : u.role === "seller"
-                        ? "bg-emerald-500/20 text-emerald-300"
-                        : "bg-primary/20 text-primary"
-                    }">
-                      ${PB.escapeHtml(u.role)}
-                    </span>
-                  </td>
-                  <td class="px-4 py-3 text-right">
-                    <select
-                      data-change-user-role="${PB.escapeHtml(u.id)}"
-                      class="rounded-lg border border-border bg-card px-2.5 py-1 text-xs font-bold text-white"
-                    >
-                      <option value="client" ${u.role === "client" ? "selected" : ""}>Cliente</option>
-                      <option value="seller" ${u.role === "seller" ? "selected" : ""}>Vendedor</option>
-                      <option value="admin" ${u.role === "admin" ? "selected" : ""}>Administrador</option>
-                    </select>
-                  </td>
-                </tr>
-              `
-              )
+              .map((u) => {
+                const isSelf = currentUser && u.id === currentUser.id;
+                return `
+                  <tr class="hover:bg-card/60">
+                    <td class="px-4 py-3 font-bold text-white">
+                      ${PB.escapeHtml(u.fullName)}
+                      ${isSelf ? `<span class="ml-1.5 rounded bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-amber-300">VOCÊ</span>` : ""}
+                    </td>
+                    <td class="px-4 py-3 text-muted-foreground">${PB.escapeHtml(u.email)}</td>
+                    <td class="px-4 py-3 text-muted-foreground">
+                      <span class="text-primary font-semibold">${PB.escapeHtml(u.ignDefault || "-")}</span>
+                      ${u.whatsapp ? ` • ${PB.escapeHtml(u.whatsapp)}` : ""}
+                    </td>
+                    <td class="px-4 py-3">
+                      <span class="rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase ${
+                        u.role === "admin"
+                          ? "bg-amber-500/20 text-amber-300"
+                          : u.role === "seller"
+                          ? "bg-emerald-500/20 text-emerald-300"
+                          : "bg-primary/20 text-primary"
+                      }">
+                        ${PB.escapeHtml(u.role)}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                      <div class="inline-flex items-center justify-end gap-2">
+                        <select
+                          data-change-user-role="${PB.escapeHtml(u.id)}"
+                          class="rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs font-bold text-white focus:border-primary focus:outline-none"
+                        >
+                          <option value="client" ${u.role === "client" ? "selected" : ""}>Cliente</option>
+                          <option value="seller" ${u.role === "seller" ? "selected" : ""}>Vendedor</option>
+                          <option value="admin" ${u.role === "admin" ? "selected" : ""}>Administrador</option>
+                        </select>
+                        ${
+                          isSelf
+                            ? `<button
+                                type="button"
+                                disabled
+                                title="Você está conectado nesta conta de Administrador"
+                                class="cursor-not-allowed rounded-lg border border-border/50 bg-card/40 px-2.5 py-1.5 text-[11px] font-bold text-muted-foreground opacity-40"
+                              >
+                                <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                              </button>`
+                            : `<button
+                                type="button"
+                                data-delete-user-id="${PB.escapeHtml(u.id)}"
+                                data-delete-user-name="${PB.escapeHtml(u.fullName)}"
+                                title="Excluir usuário permanentemente"
+                                class="inline-flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/10 px-2.5 py-1.5 text-[11px] font-bold text-red-400 transition-colors hover:bg-red-500 hover:text-white"
+                              >
+                                <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                <span>Excluir</span>
+                              </button>`
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              })
               .join("")}
           </tbody>
         </table>
@@ -1801,6 +1829,27 @@
           window.showToast("Permissão do usuário atualizada!");
         }
         renderDashboardModal();
+      });
+    });
+
+    container.querySelectorAll("[data-delete-user-id]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const uid = btn.getAttribute("data-delete-user-id");
+        const uName = btn.getAttribute("data-delete-user-name") || "este usuário";
+        const confirmed = window.confirm(
+          `Tem certeza que deseja excluir o usuário "${uName}" da plataforma?`
+        );
+        if (!confirmed) return;
+
+        try {
+          PB.deleteUserByAdmin(uid);
+          renderDashboardModal();
+          if (typeof window.showToast === "function") {
+            window.showToast(`Usuário "${uName}" excluído com sucesso!`);
+          }
+        } catch (err) {
+          alert(err.message);
+        }
       });
     });
 
