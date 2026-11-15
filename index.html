@@ -1,0 +1,1831 @@
+<!doctype html>
+<html lang="pt-BR" class="dark scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PhoenixStore — Loja de Currency, Itens & Services (PoE 1 & PoE 2)</title>
+    <meta
+      name="description"
+      content="Compre Currency (Divine Orbs, Exalted Orbs, Chaos Orbs), Itens e Services (Leveling, Boost, Carry) para Path of Exile 1 e Path of Exile 2 com entrega imediata na PhoenixStore."
+    />
+    <link rel="icon" href="./assets/favicon.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      tailwind.config = {
+        darkMode: ["class"],
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Poppins", "system-ui", "sans-serif"],
+            },
+            colors: {
+              background: "hsl(240 10% 4%)",
+              foreground: "hsl(0 0% 96%)",
+              card: "hsl(240 6% 8%)",
+              "card-foreground": "hsl(0 0% 96%)",
+              primary: "hsl(24 95% 53%)",
+              "primary-foreground": "hsl(0 0% 100%)",
+              secondary: "hsl(0 0% 14%)",
+              "secondary-foreground": "hsl(0 0% 96%)",
+              muted: "hsl(0 0% 12%)",
+              "muted-foreground": "hsl(0 0% 62%)",
+              accent: "hsl(24 95% 53%)",
+              "accent-foreground": "hsl(0 0% 100%)",
+              border: "hsl(0 0% 15%)",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      :root {
+        --background: 240 10% 4%;
+        --foreground: 0 0% 96%;
+        --card: 240 6% 8%;
+        --card-foreground: 0 0% 96%;
+        --primary: 24 95% 53%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 0 0% 14%;
+        --muted: 0 0% 12%;
+        --muted-foreground: 0 0% 62%;
+        --border: 0 0% 15%;
+      }
+      * {
+        border-color: hsl(var(--border));
+      }
+      body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-family: "Poppins", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .glow-btn {
+        transition: all 0.25s ease;
+      }
+      .glow-btn:hover {
+        box-shadow: 0 0 32px hsl(var(--primary) / 0.6), 0 0 8px hsl(var(--primary) / 0.8);
+        transform: translateY(-2px);
+      }
+      .card-hover {
+        transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-4px);
+        border-color: hsl(var(--primary) / 0.65);
+        box-shadow: 0 16px 50px -20px hsl(var(--primary) / 0.45);
+      }
+      .reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.7s ease, transform 0.7s ease;
+      }
+      .reveal.in {
+        opacity: 1;
+        transform: none;
+      }
+      .faq-content {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.25s ease-out;
+      }
+      .faq-item.open .faq-content {
+        grid-template-rows: 1fr;
+      }
+      .faq-item.open .faq-chevron {
+        transform: rotate(180deg);
+      }
+      /* Remove setas padrão do input number */
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
+    </style>
+  </head>
+  <body class="relative isolate min-h-screen overflow-x-hidden bg-transparent text-foreground">
+    <!-- Background Fixo da PhoenixStore -->
+    <div class="fixed inset-0 -z-10 bg-background" aria-hidden="true">
+      <img src="./assets/bg.jpg" alt="" class="h-full w-full object-cover object-center opacity-90" />
+      <div class="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background/90"></div>
+    </div>
+
+    <!-- Barra de Aviso Topo -->
+    <div class="border-b border-primary/25 bg-primary/10 px-4 py-2 text-center text-xs font-medium text-white backdrop-blur">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-1">
+        <span class="inline-flex items-center gap-1.5">
+          <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <strong>Entrega Online:</strong> Média de 5 a 15 minutos no seu Hideout
+        </span>
+        <span class="hidden sm:inline text-primary">•</span>
+        <span class="inline-flex items-center gap-1 text-primary font-semibold">
+          5% OFF automático pagando via PIX
+        </span>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md">
+      <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+        <a href="#" class="flex items-center gap-3">
+          <img src="./assets/phoenix-logo.png" alt="PhoenixStore" class="h-10 w-auto" />
+          <span class="hidden rounded-md border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-primary sm:inline-block">
+            Market & Boost
+          </span>
+        </a>
+
+        <nav class="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
+          <a href="#catalogo" data-nav-cat="currency" class="transition-colors hover:text-white">Currency</a>
+          <a href="#catalogo" data-nav-cat="services" class="transition-colors hover:text-white">Services & Boost</a>
+          <a href="#catalogo" data-nav-cat="items" class="transition-colors hover:text-white">Itens & Builds</a>
+          <a href="#como-funciona" class="transition-colors hover:text-white">Como Receber</a>
+          <a href="#faq" class="transition-colors hover:text-white">Dúvidas</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <button
+            id="open-cart-btn"
+            type="button"
+            class="glow-btn relative inline-flex items-center gap-2.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground"
+          >
+            <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+            <span class="hidden sm:inline">Carrinho</span>
+            <span
+              id="cart-count-badge"
+              class="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-black/80 px-1.5 text-xs font-extrabold text-primary"
+            >
+              0
+            </span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="relative isolate overflow-hidden pt-12 pb-16">
+      <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.20),transparent_65%)]"></div>
+
+      <div class="mx-auto max-w-6xl px-6 text-center">
+        <div class="reveal">
+          <div class="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-primary">
+            <i data-lucide="flame" class="h-4 w-4"></i> Loja Oficial PhoenixStore • PoE 1 & PoE 2
+          </div>
+
+          <h1 class="mx-auto max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-white drop-shadow-md md:text-6xl">
+            Sua Loja de <span class="text-primary drop-shadow-[0_0_15px_hsl(var(--primary)/0.5)]">Currency, Itens & Boost</span> com Entrega Imediata
+          </h1>
+
+          <p class="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
+            Compre Divine Orbs, Exalted Orbs, Chaos Orbs, Uniques e Services de Leveling/Carry para
+            <strong class="text-white">Path of Exile 2</strong> e <strong class="text-white">Path of Exile 1</strong> com estoque próprio e entrega face-a-face no seu Hideout.
+          </p>
+
+          <!-- Destaques rápidos -->
+          <div class="mx-auto mt-8 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4">
+            <div class="rounded-xl border border-border bg-card/75 p-3.5 text-left backdrop-blur">
+              <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
+                <i data-lucide="zap" class="h-4 w-4"></i> Entrega Flash
+              </div>
+              <p class="mt-1 text-xs text-muted-foreground">5 a 15 min direto no seu Hideout</p>
+            </div>
+            <div class="rounded-xl border border-border bg-card/75 p-3.5 text-left backdrop-blur">
+              <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
+                <i data-lucide="shield-check" class="h-4 w-4"></i> Trade Seguro
+              </div>
+              <p class="mt-1 text-xs text-muted-foreground">Método anti-detecção face-to-face</p>
+            </div>
+            <div class="rounded-xl border border-border bg-card/75 p-3.5 text-left backdrop-blur">
+              <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
+                <i data-lucide="percent" class="h-4 w-4"></i> 5% OFF no PIX
+              </div>
+              <p class="mt-1 text-xs text-muted-foreground">Desconto imediato no checkout</p>
+            </div>
+            <div class="rounded-xl border border-border bg-card/75 p-3.5 text-left backdrop-blur">
+              <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
+                <i data-lucide="headphones" class="h-4 w-4"></i> Suporte Humano
+              </div>
+              <p class="mt-1 text-xs text-muted-foreground">Atendimento via WhatsApp e Discord</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- ÁREA PRINCIPAL DA LOJA (SELETOR DE JOGO, LIGA, CATEGORIA E PRODUTOS) -->
+    <!-- ==================================================================== -->
+    <section id="catalogo" class="scroll-mt-20 px-6 pb-24">
+      <div class="mx-auto max-w-6xl">
+        <!-- Painel de Filtros da Loja -->
+        <div class="reveal rounded-2xl border border-primary/30 bg-card/85 p-6 shadow-[0_0_60px_-25px_hsl(var(--primary)/0.45)] backdrop-blur">
+          <!-- 1. Escolha o Jogo -->
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <label class="text-xs font-extrabold uppercase tracking-widest text-primary">
+                1. Selecione o Jogo
+              </label>
+              <span class="text-xs text-muted-foreground">
+                Estrutura preparada para novos jogos e temporadas
+              </span>
+            </div>
+            <div id="game-tabs-container" class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <!-- Renderizado dinamicamente via JS -->
+            </div>
+          </div>
+
+          <!-- 2. Liga / Servidor + 3. Categoria + Busca -->
+          <div class="mt-6 grid gap-4 border-t border-border pt-6 lg:grid-cols-12 lg:items-end">
+            <!-- Seletor de Liga -->
+            <div class="lg:col-span-4">
+              <label for="league-select" class="block text-xs font-extrabold uppercase tracking-widest text-primary">
+                2. Liga / Servidor
+              </label>
+              <div class="relative mt-2">
+                <select
+                  id="league-select"
+                  class="w-full appearance-none rounded-xl border border-border bg-background/90 px-4 py-3 pr-10 text-sm font-semibold text-white focus:border-primary focus:outline-none"
+                >
+                  <!-- Renderizado via JS -->
+                </select>
+                <i
+                  data-lucide="chevron-down"
+                  class="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary"
+                ></i>
+              </div>
+            </div>
+
+            <!-- Abas de Categoria (Currency / Services / Itens) -->
+            <div class="lg:col-span-5">
+              <label class="block text-xs font-extrabold uppercase tracking-widest text-primary">
+                3. Categoria
+              </label>
+              <div id="category-tabs-container" class="mt-2 flex flex-wrap gap-2">
+                <!-- Renderizado via JS -->
+              </div>
+            </div>
+
+            <!-- Busca Rápida -->
+            <div class="lg:col-span-3">
+              <label for="product-search" class="block text-xs font-extrabold uppercase tracking-widest text-muted-foreground">
+                Buscar no Catálogo
+              </label>
+              <div class="relative mt-2">
+                <i
+                  data-lucide="search"
+                  class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                ></i>
+                <input
+                  id="product-search"
+                  type="text"
+                  placeholder="Ex: Divine, Exalted, Boost..."
+                  class="w-full rounded-xl border border-border bg-background/90 py-3 pl-10 pr-4 text-sm text-white placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Descrição dinâmica da categoria selecionada -->
+          <div
+            id="active-filter-banner"
+            class="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-xs text-muted-foreground"
+          >
+            <!-- Preenchido via JS -->
+          </div>
+        </div>
+
+        <!-- Grid de Produtos -->
+        <div id="products-grid" class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- Cards renderizados dinamicamente via JS -->
+        </div>
+
+        <!-- Banner para Encomendas Personalizadas (Itens Específicos / Outros Services / Outros Jogos) -->
+        <div class="reveal mt-12 flex flex-col items-center justify-between gap-6 rounded-2xl border border-primary/40 bg-gradient-to-r from-card/95 via-card/90 to-primary/15 p-8 backdrop-blur md:flex-row">
+          <div class="max-w-2xl text-center md:text-left">
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-primary/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
+              <i data-lucide="sparkles" class="h-3.5 w-3.5"></i> Pedido Sob Medida
+            </span>
+            <h3 class="mt-3 text-2xl font-extrabold text-white">
+              Procurando um Item específico, Build completa ou Boost personalizado?
+            </h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+              Montamos pacotes de Currency no atacado, buscamos itens raros/uniques específicos no trade e fazemos serviços de Leveling, Boss Carry e Coaching sob medida para sua conta.
+            </p>
+          </div>
+          <div class="flex shrink-0 flex-wrap justify-center gap-3">
+            <a
+              href="https://wa.me/554788881427?text=Ol%C3%A1!%20Estou%20na%20Loja%20de%20Currency%20e%20Services%20da%20PhoenixStore%20e%20gostaria%20de%20fazer%20uma%20cota%C3%A7%C3%A3o%20personalizada."
+              target="_blank"
+              rel="noopener noreferrer"
+              class="glow-btn inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground"
+            >
+              <i data-lucide="phone-call" class="h-4 w-4"></i> Cotar no WhatsApp
+            </a>
+            <a
+              href="https://discord.gg/phoenixstore"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 rounded-lg border border-primary/50 bg-background/80 px-6 py-3.5 text-sm font-bold text-white transition-colors hover:border-primary hover:bg-primary/10"
+            >
+              <i data-lucide="message-circle" class="h-4 w-4 text-primary"></i> Chamar no Discord
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- COMO FUNCIONA A ENTREGA SEGURA IN-GAME                               -->
+    <!-- ==================================================================== -->
+    <section id="como-funciona" class="scroll-mt-20 border-y border-border bg-card/35 px-6 py-20">
+      <div class="mx-auto max-w-6xl">
+        <div class="reveal text-center">
+          <div class="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary">
+            <i data-lucide="shield" class="h-3.5 w-3.5"></i> Passo a Passo
+          </div>
+          <h2 class="text-3xl font-extrabold tracking-tight md:text-5xl">
+            Como funciona a <span class="text-primary">Entrega Segura</span>?
+          </h2>
+          <p class="mx-auto mt-3 max-w-2xl text-muted-foreground">
+            Processo simples, transparente e seguindo todas as práticas de proteção para a sua conta no PoE 1 e PoE 2.
+          </p>
+        </div>
+
+        <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="reveal rounded-2xl border border-border bg-card/75 p-6 backdrop-blur">
+            <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-lg font-black text-primary">
+              01
+            </div>
+            <h3 class="text-lg font-bold text-white">Escolha no Catálogo</h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+              Selecione o jogo (PoE 2 ou PoE 1), a Liga atual e a quantidade de Divine Orbs, Exalteds, Itens ou Services desejados.
+            </p>
+          </div>
+
+          <div class="reveal rounded-2xl border border-border bg-card/75 p-6 backdrop-blur" style="transition-delay: 80ms">
+            <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-lg font-black text-primary">
+              02
+            </div>
+            <h3 class="text-lg font-bold text-white">Informe seu IGN (Nick)</h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+              No carrinho, digite o nome do seu personagem dentro do jogo e clique para finalizar pelo WhatsApp ou Discord.
+            </p>
+          </div>
+
+          <div class="reveal rounded-2xl border border-border bg-card/75 p-6 backdrop-blur" style="transition-delay: 160ms">
+            <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-lg font-black text-primary">
+              03
+            </div>
+            <h3 class="text-lg font-bold text-white">Pagamento Instantâneo</h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+              Confirmamos o estoque na hora e você realiza o pagamento via PIX (com 5% OFF), Cartão ou USDT.
+            </p>
+          </div>
+
+          <div class="reveal rounded-2xl border border-border bg-card/75 p-6 backdrop-blur" style="transition-delay: 240ms">
+            <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-lg font-black text-primary">
+              04
+            </div>
+            <h3 class="text-lg font-bold text-white">Trade no Hideout</h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+              Mandamos party in-game. Para sua segurança, sempre coloque <strong>1 item Raro (amarelo) qualquer</strong> na janela de trade ao receber!
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- FAQ DA LOJA DE CURRENCY & SERVICES                                   -->
+    <!-- ==================================================================== -->
+    <section id="faq" class="scroll-mt-20 px-6 py-20">
+      <div class="mx-auto max-w-3xl">
+        <div class="reveal text-center">
+          <h2 class="text-3xl font-extrabold tracking-tight md:text-4xl">
+            Perguntas <span class="text-primary">Frequentes</span>
+          </h2>
+          <p class="mt-3 text-muted-foreground">
+            Dúvidas sobre prazos de entrega, segurança no trade e serviços de Boost/Leveling.
+          </p>
+        </div>
+
+        <div id="faq-list" class="reveal mt-10 space-y-4">
+          <div class="faq-item open rounded-xl border border-border bg-card/75 px-6 transition-colors hover:border-primary/40">
+            <button type="button" class="faq-trigger flex w-full items-center justify-between gap-4 py-5 text-left font-bold text-white">
+              <span>1. Qual o prazo de entrega das Currencies (Divine / Exalted / Chaos)?</span>
+              <i data-lucide="chevron-down" class="faq-chevron h-5 w-5 shrink-0 text-primary transition-transform duration-200"></i>
+            </button>
+            <div class="faq-content">
+              <div class="overflow-hidden">
+                <div class="pb-5 text-sm leading-relaxed text-muted-foreground">
+                  Assim que o pagamento é confirmado no atendimento, a entrega costuma ocorrer entre <strong class="text-white">5 e 15 minutos</strong> diretamente no seu Hideout dentro do jogo.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item rounded-xl border border-border bg-card/75 px-6 transition-colors hover:border-primary/40">
+            <button type="button" class="faq-trigger flex w-full items-center justify-between gap-4 py-5 text-left font-bold text-white">
+              <span>2. Como deixar o trade mais seguro para minha conta?</span>
+              <i data-lucide="chevron-down" class="faq-chevron h-5 w-5 shrink-0 text-primary transition-transform duration-200"></i>
+            </button>
+            <div class="faq-content">
+              <div class="overflow-hidden">
+                <div class="pb-5 text-sm leading-relaxed text-muted-foreground">
+                  Nunca aceite uma troca com a sua janela vazia: sempre coloque <strong class="text-white">1 equipamento Raro (amarelo) ou Unique barato</strong> na janela de trade, e evite comentar sobre compras no chat dentro do jogo. Nossa equipe te orienta em cada passo pelo WhatsApp ou Discord.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item rounded-xl border border-border bg-card/75 px-6 transition-colors hover:border-primary/40">
+            <button type="button" class="faq-trigger flex w-full items-center justify-between gap-4 py-5 text-left font-bold text-white">
+              <span>3. Como funcionam os Services de Leveling, Campanha e Ascendancy Carry?</span>
+              <i data-lucide="chevron-down" class="faq-chevron h-5 w-5 shrink-0 text-primary transition-transform duration-200"></i>
+            </button>
+            <div class="faq-content">
+              <div class="overflow-hidden">
+                <div class="pb-5 text-sm leading-relaxed text-muted-foreground">
+                  A maioria dos serviços (como <strong class="text-white">Ascendancy Carry, 5-Way XP Boost e Boss Carry</strong>) é feita no modo <strong class="text-white">Self-Play</strong>: você entra na party do nosso Booster usando o seu próprio personagem e apenas acompanha/recebe o XP e a conclusão. Também oferecemos opções Piloted sob consulta.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item rounded-xl border border-border bg-card/75 px-6 transition-colors hover:border-primary/40">
+            <button type="button" class="faq-trigger flex w-full items-center justify-between gap-4 py-5 text-left font-bold text-white">
+              <span>4. Os preços de Currency mudam durante a Liga?</span>
+              <i data-lucide="chevron-down" class="faq-chevron h-chevron h-5 w-5 shrink-0 text-primary transition-transform duration-200"></i>
+            </button>
+            <div class="faq-content">
+              <div class="overflow-hidden">
+                <div class="pb-5 text-sm leading-relaxed text-muted-foreground">
+                  Sim! A economia de Path of Exile 1 e Path of Exile 2 é dinâmica. Caso compre em grande quantidade, chame nosso time no WhatsApp ou Discord para garantir desconto de atacado e a melhor cotação da hora.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer class="border-t border-border bg-background/90 py-10">
+      <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-center sm:flex-row sm:text-left">
+        <div class="flex items-center gap-3">
+          <img src="./assets/phoenix-logo.png" alt="PhoenixStore" class="h-10 w-auto" />
+          <span class="text-xs text-muted-foreground">© 2026 PhoenixStore. Todos os direitos reservados.</span>
+        </div>
+        <div class="flex items-center gap-4 text-xs text-muted-foreground">
+          <a href="https://wa.me/554788881427" target="_blank" rel="noopener noreferrer" class="hover:text-primary">WhatsApp Oficial</a>
+          <span>•</span>
+          <a href="https://discord.gg/phoenixstore" target="_blank" rel="noopener noreferrer" class="hover:text-primary">Comunidade Discord</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ==================================================================== -->
+    <!-- DRAWER LATERAL DO CARRINHO + CHECKOUT WHATSAPP / DISCORD             -->
+    <!-- ==================================================================== -->
+    <div
+      id="cart-backdrop"
+      class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm transition-opacity"
+    ></div>
+
+    <aside
+      id="cart-drawer"
+      class="fixed right-0 top-0 z-50 flex h-full w-full max-w-md translate-x-full flex-col border-l border-border bg-card shadow-2xl transition-transform duration-300"
+      aria-label="Carrinho de Compras"
+    >
+      <!-- Cabeçalho do Carrinho -->
+      <div class="flex items-center justify-between border-b border-border px-6 py-5">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="shopping-bag" class="h-5 w-5 text-primary"></i>
+          <h2 class="text-lg font-extrabold text-white">Seu Pedido</h2>
+        </div>
+        <button
+          id="close-cart-btn"
+          type="button"
+          class="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:border-primary hover:text-white"
+        >
+          <i data-lucide="x" class="h-4 w-4"></i>
+        </button>
+      </div>
+
+      <!-- Lista de Itens no Carrinho -->
+      <div id="cart-items-list" class="flex-1 space-y-3 overflow-y-auto p-6">
+        <!-- Preenchido via JS -->
+      </div>
+
+      <!-- Rodapé do Carrinho / Dados do Jogador & Botões de Finalização -->
+      <div class="border-t border-border bg-background/95 p-6">
+        <div class="space-y-3">
+          <div>
+            <label for="checkout-ign" class="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Nome do seu Personagem (IGN) <span class="text-primary">*</span>
+            </label>
+            <input
+              id="checkout-ign"
+              type="text"
+              placeholder="Ex: PhoenixRanger_PoE"
+              class="mt-1.5 w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm text-white placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label for="checkout-payment" class="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Forma de Pagamento
+            </label>
+            <select
+              id="checkout-payment"
+              class="mt-1.5 w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm font-medium text-white focus:border-primary focus:outline-none"
+            >
+              <option value="PIX (5% OFF)">PIX — 5% de Desconto Automático</option>
+              <option value="Cartão de Crédito">Cartão de Crédito</option>
+              <option value="Cripto (USDT / Binance)">Cripto (USDT / Binance)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Resumo de Valores -->
+        <div class="mt-4 space-y-1.5 rounded-xl border border-border bg-card/80 p-4 text-sm">
+          <div class="flex justify-between text-muted-foreground">
+            <span>Subtotal:</span>
+            <span id="cart-subtotal-label">R$ 0,00</span>
+          </div>
+          <div id="cart-discount-row" class="flex justify-between text-emerald-400 text-xs font-semibold">
+            <span>Desconto PIX (5%):</span>
+            <span id="cart-discount-label">- R$ 0,00</span>
+          </div>
+          <div class="flex justify-between border-t border-border pt-2 text-base font-extrabold text-white">
+            <span>Total Estimado:</span>
+            <span id="cart-total-label" class="text-primary">R$ 0,00</span>
+          </div>
+        </div>
+
+        <!-- Botões de Checkout -->
+        <div class="mt-4 space-y-2.5">
+          <button
+            id="checkout-whatsapp-btn"
+            type="button"
+            class="glow-btn inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground"
+          >
+            <i data-lucide="phone-call" class="h-4 w-4"></i> Finalizar Pedido no WhatsApp
+          </button>
+          <button
+            id="checkout-discord-btn"
+            type="button"
+            class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/50 bg-card px-6 py-3 text-xs font-bold text-white transition-colors hover:border-primary hover:bg-primary/10"
+          >
+            <i data-lucide="message-circle" class="h-4 w-4 text-primary"></i> Copiar Pedido & Abrir Discord
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Toast de Notificação -->
+    <div
+      id="toast-notification"
+      class="pointer-events-none fixed bottom-6 right-6 z-50 flex translate-y-10 items-center gap-3 rounded-xl border border-primary bg-card/95 px-4 py-3 text-sm font-semibold text-white opacity-0 shadow-2xl transition-all duration-300"
+    >
+      <span class="rounded-full bg-primary/20 p-1.5 text-primary">
+        <i data-lucide="check" class="h-4 w-4"></i>
+      </span>
+      <span id="toast-message">Adicionado ao carrinho!</span>
+    </div>
+
+    <!-- Carrega o arquivo externo de configuração (se existir na pasta) -->
+    <script src="./catalog-config.js"></script>
+
+    <!-- Lógica da Loja (Modular para adicionar mais Jogos, Currency, Itens e Services) -->
+    <script>
+      // Fallback caso o arquivo seja aberto isoladamente fora da pasta
+      const DEFAULT_STORE_DATA = {
+        settings: {
+          storeName: "PhoenixStore",
+          whatsappNumber: "554788881427",
+          discordUrl: "https://discord.gg/phoenixstore",
+          pixDiscountPercent: 5,
+          averageDeliveryTime: "5 a 15 minutos",
+        },
+        games: [
+          {
+            id: "poe2",
+            name: "Path of Exile 2",
+            shortName: "PoE 2",
+            tag: "EM ALTA",
+            status: "ativo",
+            description: "Divine Orbs, Exalted Orbs, Gold, Itens Endgame e Services de Leveling/Boost no PoE 2.",
+            leagues: [
+              { id: "poe2-league", name: "Liga Atual — Softcore", badge: "Principal" },
+              { id: "poe2-hc", name: "Liga Atual — Hardcore", badge: "HC" },
+              { id: "poe2-standard", name: "Standard (Early Access)", badge: "Permanente" },
+            ],
+          },
+          {
+            id: "poe1",
+            name: "Path of Exile 1",
+            shortName: "PoE 1",
+            tag: "CLÁSSICO",
+            status: "ativo",
+            description: "Divine Orbs, Chaos Orbs, Mirror of Kalandra, Uniques T0 e Services de Carry & Leveling.",
+            leagues: [
+              { id: "poe1-league", name: "Liga Atual — Softcore", badge: "Principal" },
+              { id: "poe1-hc", name: "Liga Atual — Hardcore", badge: "HC" },
+              { id: "poe1-standard", name: "Standard — Softcore", badge: "Permanente" },
+            ],
+          },
+          {
+            id: "diablo4",
+            name: "Diablo IV",
+            shortName: "Diablo IV",
+            tag: "EM BREVE",
+            status: "em_breve",
+            description: "Gold, Boss Mats, Runes, Duriel/Andariel Carries e Power Leveling 1-60 + Paragon.",
+            leagues: [{ id: "d4-seasonal", name: "Seasonal Softcore", badge: "Temporada" }],
+          },
+          {
+            id: "last_epoch",
+            name: "Last Epoch",
+            shortName: "Last Epoch",
+            tag: "EM BREVE",
+            status: "em_breve",
+            description: "Gold, Ciclo Atual, Monolith Corruption Boost e Leveling.",
+            leagues: [{ id: "le-cycle", name: "Cycle — Merchant's Guild", badge: "Temporada" }],
+          },
+        ],
+        categories: [
+          {
+            id: "currency",
+            name: "Currency (Moedas)",
+            shortName: "Currency",
+            icon: "coins",
+            badge: "Entrega Imediata",
+            status: "ativo",
+            description: "Orbs e moedas entregues direto no seu Hideout via Trade face-a-face seguro.",
+          },
+          {
+            id: "services",
+            name: "Services (Leveling & Boost)",
+            shortName: "Services & Boost",
+            icon: "zap",
+            badge: "Expansão",
+            status: "ativo",
+            description: "Leveling 1-100, Campanha/Atos, Ascendancy Carry, Boss Kill e Simulacrum/5-Way Boost.",
+          },
+          {
+            id: "items",
+            name: "Itens & Builds",
+            shortName: "Itens & Equips",
+            icon: "shield",
+            badge: "Catálogo / Encomenda",
+            status: "ativo",
+            description: "Uniques Tier 0 (Mageblood, Headhunter, Temporalis, Ingenuity) e Rares de Endgame.",
+          },
+        ],
+        products: [
+          {
+            id: "poe2-divine-orb",
+            gameId: "poe2",
+            categoryId: "currency",
+            name: "Divine Orb",
+            subtitle: "Moeda principal de trade para equipamentos de alto nível no PoE 2",
+            badge: "Mais Vendido",
+            featured: true,
+            pricePerUnit: 4.5,
+            unitLabel: "1x Divine Orb",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1, 5, 10, 20, 50],
+            stockStatus: "Estoque Alto • Entrega em 5 min",
+            iconType: "orb-divine",
+            rarityColor: "amber",
+            highlights: ["Trade seguro no seu Hideout", "Desconto automático no PIX", "Estoque próprio farmado 100% in-game"],
+          },
+          {
+            id: "poe2-exalted-orb-pack",
+            gameId: "poe2",
+            categoryId: "currency",
+            name: "Exalted Orb (Pacote 10x)",
+            subtitle: "Essencial para slammar mods em itens raros e trocas rápidas no PoE 2",
+            badge: "Alta Procura",
+            featured: true,
+            pricePerUnit: 6.9,
+            unitLabel: "Pacote c/ 10x Exalted Orbs",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1, 5, 10, 25, 50],
+            stockStatus: "Estoque Imediato",
+            iconType: "orb-exalted",
+            rarityColor: "orange",
+            highlights: ["Cada unidade = 10 Exalted Orbs", "Ideal para crafting e comércio diário", "Entrega rápida face-to-face"],
+          },
+          {
+            id: "poe2-chaos-orb-pack",
+            gameId: "poe2",
+            categoryId: "currency",
+            name: "Chaos Orb (Pacote 10x)",
+            subtitle: "Re-rola modificadores em equipamentos raros no Path of Exile 2",
+            badge: null,
+            featured: false,
+            pricePerUnit: 8.5,
+            unitLabel: "Pacote c/ 10x Chaos Orbs",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1, 3, 5, 10, 20],
+            stockStatus: "Em Estoque",
+            iconType: "orb-chaos",
+            rarityColor: "purple",
+            highlights: ["Cada unidade = 10 Chaos Orbs", "Ótimo para ajustes de build e trocas"],
+          },
+          {
+            id: "poe2-gold-pack",
+            gameId: "poe2",
+            categoryId: "currency",
+            name: "Pacote de Gold (500k Ouro)",
+            subtitle: "Ouro para Respec da Passive Tree, Gambling na Alva e Currency Exchange",
+            badge: "PoE 2",
+            featured: false,
+            pricePerUnit: 14.9,
+            unitLabel: "500.000 Gold",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1, 2, 5, 10],
+            stockStatus: "Disponível",
+            iconType: "orb-gold",
+            rarityColor: "amber",
+            highlights: ["Perfeito para resetar árvore passiva e taxas do mercado", "Transferência rápida orientada pela equipe"],
+          },
+          {
+            id: "poe2-vaal-gemcutter-bundle",
+            gameId: "poe2",
+            categoryId: "currency",
+            name: "Kit Gemcutter's Prism + Vaal Orbs",
+            subtitle: "20x Gemcutter's Prism (20% Quality nas Gems) + 30x Vaal Orbs",
+            badge: "Combo Build",
+            featured: false,
+            pricePerUnit: 19.9,
+            unitLabel: "1x Kit Completo de Gemas",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1, 2, 5],
+            stockStatus: "Em Estoque",
+            iconType: "orb-vaal",
+            rarityColor: "red",
+            highlights: ["Deixe todas as Skill Gems da sua build 20% Quality", "Inclui Vaal Orbs para corromper para 21% ou +1 socket"],
+          },
+          {
+            id: "poe2-mirror-of-kalandra",
+            gameId: "poe2",
+            categoryId: "currency",
+            name: "Mirror of Kalandra",
+            subtitle: "A moeda mais rara e valiosa do Path of Exile 2 para espelhar itens perfeitos",
+            badge: "Ultra Raro",
+            featured: false,
+            pricePerUnit: 0,
+            customPriceLabel: "Sob Consulta",
+            unitLabel: "1x Mirror of Kalandra",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1],
+            stockStatus: "Consultar disponibilidade no Atendimento",
+            iconType: "orb-mirror",
+            rarityColor: "cyan",
+            highlights: ["Atendimento VIP acompanhado pela liderança PhoenixStore", "Cotação atualizada em tempo real"],
+          },
+          {
+            id: "poe1-divine-orb",
+            gameId: "poe1",
+            categoryId: "currency",
+            name: "Divine Orb (PoE 1)",
+            subtitle: "A moeda padrão do mercado de Path of Exile 1 para comprar qualquer build",
+            badge: "Mais Vendido",
+            featured: true,
+            pricePerUnit: 1.8,
+            unitLabel: "1x Divine Orb",
+            minQty: 5,
+            stepQty: 5,
+            quickPresets: [10, 25, 50, 100, 200],
+            stockStatus: "Estoque Alto • Entrega em 5 min",
+            iconType: "orb-divine",
+            rarityColor: "amber",
+            highlights: ["Trade seguro no seu Hideout", "Desconto para pacotes acima de 50 e 100 Divines", "Entrega em minutos"],
+          },
+          {
+            id: "poe1-chaos-orb-100",
+            gameId: "poe1",
+            categoryId: "currency",
+            name: "Chaos Orb (Pacote 100x)",
+            subtitle: "Pacote com 100 Chaos Orbs para comprar mapas, scarabs e itens iniciais",
+            badge: "Custo-Benefício",
+            featured: true,
+            pricePerUnit: 4.9,
+            unitLabel: "Pacote c/ 100x Chaos Orbs",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1, 3, 5, 10, 20],
+            stockStatus: "Estoque Imediato",
+            iconType: "orb-chaos",
+            rarityColor: "purple",
+            highlights: ["Cada unidade = 100 Chaos Orbs", "Ideal para League Start e rolagem de mapas T16/T17"],
+          },
+          {
+            id: "poe1-exalted-orb-10",
+            gameId: "poe1",
+            categoryId: "currency",
+            name: "Exalted Orb (Pacote 10x)",
+            subtitle: "Pacote com 10 Exalted Orbs para slams de atributos em Clusters e Jewels",
+            badge: null,
+            featured: false,
+            pricePerUnit: 6.5,
+            unitLabel: "Pacote c/ 10x Exalted Orbs",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1, 2, 5, 10],
+            stockStatus: "Em Estoque",
+            iconType: "orb-exalted",
+            rarityColor: "orange",
+            highlights: ["Cada unidade = 10 Exalted Orbs", "Entrega rápida no Hideout"],
+          },
+          {
+            id: "poe1-mirror-of-kalandra",
+            gameId: "poe1",
+            categoryId: "currency",
+            name: "Mirror of Kalandra (PoE 1)",
+            subtitle: "Para espelhar itens Mirror-Tier ou montar builds de múltiplos Mirrors",
+            badge: "VIP / Raro",
+            featured: false,
+            pricePerUnit: 0,
+            customPriceLabel: "Sob Consulta",
+            unitLabel: "1x Mirror of Kalandra",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1],
+            stockStatus: "Sob Encomenda / Cotação do Dia",
+            iconType: "orb-mirror",
+            rarityColor: "cyan",
+            highlights: ["Negociação direta no WhatsApp ou Discord", "Total segurança na entrega"],
+          },
+          {
+            id: "poe2-service-leveling-campanha",
+            gameId: "poe2",
+            categoryId: "services",
+            name: "Boost de Campanha Completa (Atos 1 ao 6)",
+            subtitle: "Rush completo de todos os Atos + Bosses de Spirit permanentes + Waypoints",
+            badge: "Service Popular",
+            featured: true,
+            pricePerUnit: 89.9,
+            unitLabel: "1x Personagem",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1, 2],
+            stockStatus: "Boosters Online",
+            iconType: "service-boost",
+            rarityColor: "orange",
+            highlights: ["Inclui todos os bônus permanentes de Spirit e Atributos", "Você acompanha na party (Self-Play) ou Piloted sob consulta"],
+          },
+          {
+            id: "poe2-service-ascendancy-carry",
+            gameId: "poe2",
+            categoryId: "services",
+            name: "Ascendancy Carry (1ª à 4ª Ascendancy)",
+            subtitle: "Trial of the Sekhemas (4 andares) ou Trial of Chaos garantido sem risco",
+            badge: "100% Garantido",
+            featured: true,
+            pricePerUnit: 39.9,
+            unitLabel: "1x Run Completa",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1, 2, 4],
+            stockStatus: "Boosters Online",
+            iconType: "service-ascendancy",
+            rarityColor: "amber",
+            highlights: ["Libere todos os 8 pontos da sua Ascendancy em minutos", "Se der qualquer imprevisto, refazemos a run sem custo"],
+          },
+          {
+            id: "poe2-service-power-leveling",
+            gameId: "poe2",
+            categoryId: "services",
+            name: "Power Leveling (Level 70 ao 95+)",
+            subtitle: "XP Boost acelerado em mapas juiced T15/T16 + Breach/Simulacrum",
+            badge: "XP Rápido",
+            featured: false,
+            pricePerUnit: 0,
+            customPriceLabel: "Sob Consulta",
+            unitLabel: "Pacote de Níveis",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1],
+            stockStatus: "Agendamento Imediato",
+            iconType: "service-leveling",
+            rarityColor: "purple",
+            highlights: ["Escolha a faixa exata de level que deseja alcançar", "Feito em party segura com Aurabot + Carry"],
+          },
+          {
+            id: "poe1-service-5way-leveling",
+            gameId: "poe1",
+            categoryId: "services",
+            name: "5-Way XP Boost / Power Leveling (Level 1–100)",
+            subtitle: "Suba do nível 70 ao 95 ou 100 rapidamente em rotações de 5-Way Legion com Aurabot",
+            badge: "Level 100",
+            featured: true,
+            pricePerUnit: 49.9,
+            unitLabel: "Pacote 5 Runs (5-Way)",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1, 2, 4],
+            stockStatus: "Times Disponíveis",
+            iconType: "service-leveling",
+            rarityColor: "orange",
+            highlights: ["Mais de 9.500+ kills por run com Carry + Resetter dedicados", "Você só fica parado ganhando XP em segurança"],
+          },
+          {
+            id: "poe1-service-act-rush",
+            gameId: "poe1",
+            categoryId: "services",
+            name: "Act Rush Completo (Atos 1 ao 10 + 4 Labs)",
+            subtitle: "Campanha completa com todos os Skill Points de quests + Merciless/Uber Lab",
+            badge: "Economize 8h",
+            featured: false,
+            pricePerUnit: 79.9,
+            unitLabel: "1x Personagem Completo",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1, 2],
+            stockStatus: "Disponível",
+            iconType: "service-boost",
+            rarityColor: "amber",
+            highlights: ["Inclui todos os 22/24 pontos de passiva das missões", "Inclui os 4 Labyrinths para 8 pontos de Ascendancy"],
+          },
+          {
+            id: "poe2-item-ingenuity-belt",
+            gameId: "poe2",
+            categoryId: "items",
+            name: "Ingenuity Utility Belt (High Roll)",
+            subtitle: "Cinto único Tier 0 que multiplica os bônus dos seus anéis no Path of Exile 2",
+            badge: "Unique T0",
+            featured: true,
+            pricePerUnit: 0,
+            customPriceLabel: "Sob Consulta",
+            unitLabel: "1x Item Unique",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1],
+            stockStatus: "Sob Encomenda / Pronta Entrega",
+            iconType: "item-unique",
+            rarityColor: "orange",
+            highlights: ["Rolls verificados antes da entrega", "Consulte também Temporalis, Astramentis e Dream Fragments"],
+          },
+          {
+            id: "poe1-item-mageblood",
+            gameId: "poe1",
+            categoryId: "items",
+            name: "Mageblood Heavy Belt (4 Flasks)",
+            subtitle: "O cinto mais icônico do Path of Exile 1 — efeito permanente de 4 Magic Utility Flasks",
+            badge: "Tier 0",
+            featured: true,
+            pricePerUnit: 0,
+            customPriceLabel: "Sob Consulta",
+            unitLabel: "1x Mageblood (4 Flask)",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1],
+            stockStatus: "Estoque / Encomenda Rápida",
+            iconType: "item-unique",
+            rarityColor: "orange",
+            highlights: ["Acompanha opção de kit com 4 Flasks Enkindling/25% Increased Effect", "Também trabalhamos com Headhunter, Nimis e Original Sin"],
+          },
+          {
+            id: "poe-item-custom-build",
+            gameId: "poe2",
+            categoryId: "items",
+            name: "Montagem de Build Completa (Endgame Ready)",
+            subtitle: "Entregamos todos os equipamentos, gemas e joias prontos para rodar T15/T16 e Bosses",
+            badge: "Build Pronta",
+            featured: false,
+            pricePerUnit: 0,
+            customPriceLabel: "Sob Consulta",
+            unitLabel: "1x Build Completa",
+            minQty: 1,
+            stepQty: 1,
+            quickPresets: [1],
+            stockStatus: "Personalizado via Discord",
+            iconType: "item-build",
+            rarityColor: "amber",
+            highlights: ["Disponível tanto para PoE 2 quanto para PoE 1", "Acompanha explicação da mecânica e árvore passiva"],
+          },
+        ],
+      };
+
+      const STORE = window.PHOENIX_STORE_DATA || DEFAULT_STORE_DATA;
+
+      // Estado atual de navegação e carrinho
+      const state = {
+        activeGameId: "poe2",
+        activeLeagueId: "poe2-league",
+        activeCategoryId: "currency",
+        searchQuery: "",
+        quantities: {}, // { [productId]: number }
+        cart: [], // [{ product, game, league, qty }]
+      };
+
+      // Inicializa quantidades padrão de cada produto
+      STORE.products.forEach((p) => {
+        state.quantities[p.id] = p.minQty || 1;
+      });
+
+      function formatBRL(value) {
+        return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      }
+
+      // Ícones oficiais das Currencies, Itens e Services (com tamanho 56x56px h-14 w-14 preservado)
+      function getProductVisualBadge(product) {
+        const rarityColor = product.rarityColor || "orange";
+        const colorMap = {
+          amber: "from-amber-500/25 to-orange-600/10 border-amber-400/50 text-amber-300",
+          orange: "from-orange-500/25 to-red-600/10 border-primary/60 text-primary",
+          purple: "from-purple-500/25 to-indigo-600/10 border-purple-400/50 text-purple-300",
+          red: "from-red-500/25 to-rose-700/10 border-red-400/50 text-red-300",
+          cyan: "from-cyan-400/25 to-blue-600/10 border-cyan-300/60 text-cyan-200",
+        };
+        const cls = colorMap[rarityColor] || colorMap.orange;
+
+        if (product.iconFile || product.imageUrl) {
+          const primarySrc = product.iconFile ? `./assets/icons/${product.iconFile}` : product.imageUrl;
+          const fallbackSrc = product.imageUrl || primarySrc;
+
+          if (product.secondaryIconFile || product.secondaryImageUrl) {
+            const secSrc = product.secondaryIconFile
+              ? `./assets/icons/${product.secondaryIconFile}`
+              : product.secondaryImageUrl;
+            const secFallback = product.secondaryImageUrl || secSrc;
+            return `
+              <div class="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border bg-gradient-to-br ${cls} p-1.5 shadow-inner">
+                <img
+                  src="${primarySrc}"
+                  onerror="this.onerror=null;this.src='${fallbackSrc}'"
+                  alt="${product.name}"
+                  class=" -ml-2 -mt-1.5 h-8 w-8 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]"
+                />
+                <img
+                  src="${secSrc}"
+                  onerror="this.onerror=null;this.src='${secFallback}'"
+                  alt="${product.name}"
+                  class="-ml-2.5 mt-2.5 h-8 w-8 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]"
+                />
+              </div>
+            `;
+          }
+
+          return `
+            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border bg-gradient-to-br ${cls} p-2 shadow-inner">
+              <img
+                src="${primarySrc}"
+                onerror="this.onerror=null;this.src='${fallbackSrc}'"
+                alt="${product.name}"
+                class="h-10 w-10 object-contain drop-shadow-[0_3px_8px_rgba(0,0,0,0.9)] transition-transform duration-200 group-hover:scale-110"
+              />
+            </div>
+          `;
+        }
+
+        return `
+          <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border bg-gradient-to-br ${cls} shadow-inner">
+            <i data-lucide="coins" class="h-7 w-7"></i>
+          </div>
+        `;
+      }
+
+      // 1. Renderiza Abas de Jogos
+      function renderGameTabs() {
+        const container = document.getElementById("game-tabs-container");
+        container.innerHTML = STORE.games
+          .map((g) => {
+            const isActive = g.id === state.activeGameId;
+            const isSoon = g.status !== "ativo";
+            return `
+              <button
+                type="button"
+                data-game-id="${g.id}"
+                class="group relative flex flex-col items-start justify-between rounded-xl border p-3.5 text-left transition-all ${
+                  isActive
+                    ? "border-primary bg-primary/15 shadow-[0_0_25px_-5px_hsl(var(--primary)/0.5)]"
+                    : isSoon
+                    ? "border-border/70 bg-background/50 opacity-75 hover:border-primary/40 hover:opacity-100"
+                    : "border-border bg-background/80 hover:border-primary/50"
+                }"
+              >
+                <div class="flex w-full items-center justify-between gap-2">
+                  <span class="text-sm font-extrabold text-white">${g.name}</span>
+                  <span class="rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${
+                    isSoon
+                      ? "bg-muted text-muted-foreground"
+                      : isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-primary/15 text-primary"
+                  }">
+                    ${g.tag}
+                  </span>
+                </div>
+                <span class="mt-1 line-clamp-1 text-[11px] text-muted-foreground">
+                  ${isSoon ? "Clique para solicitar encomenda" : g.description}
+                </span>
+              </button>
+            `;
+          })
+          .join("");
+
+        container.querySelectorAll("button[data-game-id]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const gameId = btn.getAttribute("data-game-id");
+            const game = STORE.games.find((g) => g.id === gameId);
+            if (!game) return;
+            state.activeGameId = gameId;
+            if (game.leagues && game.leagues.length > 0) {
+              state.activeLeagueId = game.leagues[0].id;
+            }
+            renderAll();
+          });
+        });
+      }
+
+      // 2. Renderiza Select de Ligas
+      function renderLeagueSelect() {
+        const select = document.getElementById("league-select");
+        const activeGame = STORE.games.find((g) => g.id === state.activeGameId) || STORE.games[0];
+        const leagues = activeGame.leagues || [];
+        select.innerHTML = leagues
+          .map(
+            (l) =>
+              `<option value="${l.id}" ${l.id === state.activeLeagueId ? "selected" : ""}>${l.name} (${l.badge})</option>`
+          )
+          .join("");
+      }
+
+      // 3. Renderiza Abas de Categorias (Currency / Services / Itens / Todos)
+      function renderCategoryTabs() {
+        const container = document.getElementById("category-tabs-container");
+        const allTabs = [
+          ...STORE.categories,
+          { id: "all", shortName: "Ver Tudo", icon: "layers", description: "Todos os produtos disponíveis para o jogo selecionado." },
+        ];
+
+        container.innerHTML = allTabs
+          .map((cat) => {
+            const isActive = cat.id === state.activeCategoryId;
+            return `
+              <button
+                type="button"
+                data-cat-id="${cat.id}"
+                class="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-bold transition-all ${
+                  isActive
+                    ? "border-primary bg-primary text-primary-foreground shadow-[0_0_20px_-5px_hsl(var(--primary)/0.7)]"
+                    : "border-border bg-background/85 text-white hover:border-primary/50"
+                }"
+              >
+                <i data-lucide="${cat.icon}" class="h-4 w-4"></i>
+                <span>${cat.shortName}</span>
+              </button>
+            `;
+          })
+          .join("");
+
+        container.querySelectorAll("button[data-cat-id]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            state.activeCategoryId = btn.getAttribute("data-cat-id");
+            renderAll();
+          });
+        });
+      }
+
+      // 4. Renderiza Banner Informativo do Filtro Atual
+      function renderFilterBanner() {
+        const banner = document.getElementById("active-filter-banner");
+        const game = STORE.games.find((g) => g.id === state.activeGameId);
+        const cat = STORE.categories.find((c) => c.id === state.activeCategoryId);
+        const league = (game?.leagues || []).find((l) => l.id === state.activeLeagueId);
+
+        banner.innerHTML = `
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-bold text-white">${game ? game.name : ""}</span>
+            <span class="text-primary">•</span>
+            <span class="text-primary font-semibold">${league ? league.name : ""}</span>
+            <span class="text-primary">•</span>
+            <span>${cat ? cat.description : "Exibindo Currency, Services e Itens disponíveis."}</span>
+          </div>
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">
+            ● Atendimento Online
+          </span>
+        `;
+      }
+
+      // 5. Renderiza Grid de Produtos
+      function renderProductsGrid() {
+        const grid = document.getElementById("products-grid");
+        const activeGame = STORE.games.find((g) => g.id === state.activeGameId);
+
+        // Se o usuário clicou em um jogo "Em Breve" (ex: Diablo IV ou Last Epoch)
+        if (activeGame && activeGame.status !== "ativo") {
+          grid.innerHTML = `
+            <div class="col-span-full rounded-2xl border border-primary/40 bg-card/90 p-10 text-center backdrop-blur">
+              <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                <i data-lucide="clock" class="h-8 w-8"></i>
+              </div>
+              <span class="rounded-full bg-primary/20 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-primary">
+                Expansão de Catálogo
+              </span>
+              <h3 class="mt-3 text-2xl font-extrabold text-white">
+                Catálogo de ${activeGame.name} em preparação!
+              </h3>
+              <p class="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
+                ${activeGame.description} Já atendemos pedidos sob encomenda para <strong>${activeGame.name}</strong> diretamente no nosso WhatsApp e Discord!
+              </p>
+              <div class="mt-6 flex flex-wrap justify-center gap-3">
+                <a
+                  href="https://wa.me/${STORE.settings.whatsappNumber}?text=${encodeURIComponent(
+                    `Olá! Vi na loja da PhoenixStore que ${activeGame.name} está em expansão e gostaria de cotar Currency/Boost para ele!`
+                  )}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="glow-btn inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
+                >
+                  <i data-lucide="phone-call" class="h-4 w-4"></i> Consultar ${activeGame.name} no WhatsApp
+                </a>
+                <button
+                  type="button"
+                  id="back-to-poe2-btn"
+                  class="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-6 py-3 text-sm font-bold text-white hover:border-primary"
+                >
+                  Voltar para Path of Exile 2
+                </button>
+              </div>
+            </div>
+          `;
+          lucide.createIcons();
+          const backBtn = document.getElementById("back-to-poe2-btn");
+          if (backBtn) {
+            backBtn.addEventListener("click", () => {
+              state.activeGameId = "poe2";
+              state.activeLeagueId = STORE.games[0].leagues[0].id;
+              renderAll();
+            });
+          }
+          return;
+        }
+
+        const query = state.searchQuery.trim().toLowerCase();
+        const filtered = STORE.products.filter((p) => {
+          const matchGame = p.gameId === state.activeGameId;
+          const matchCat = state.activeCategoryId === "all" || p.categoryId === state.activeCategoryId;
+          const matchSearch =
+            !query ||
+            p.name.toLowerCase().includes(query) ||
+            p.subtitle.toLowerCase().includes(query) ||
+            p.unitLabel.toLowerCase().includes(query);
+          return matchGame && matchCat && matchSearch;
+        });
+
+        if (filtered.length === 0) {
+          grid.innerHTML = `
+            <div class="col-span-full rounded-2xl border border-border bg-card/80 p-10 text-center">
+              <p class="text-base font-bold text-white">Nenhum item encontrado com esse filtro.</p>
+              <p class="mt-1 text-sm text-muted-foreground">Tente limpar a busca ou trocar de categoria acima.</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = filtered
+          .map((p) => {
+            const qty = state.quantities[p.id] || p.minQty || 1;
+            const isConsult = !p.pricePerUnit || p.pricePerUnit <= 0;
+            const totalStandard = isConsult ? 0 : p.pricePerUnit * qty;
+            const totalPix = totalStandard * (1 - STORE.settings.pixDiscountPercent / 100);
+
+            return `
+              <div class="card-hover relative flex flex-col justify-between rounded-2xl border ${
+                p.featured ? "border-primary/50" : "border-border"
+              } bg-card/85 p-6 backdrop-blur">
+                ${
+                  p.badge
+                    ? `<div class="absolute -top-3 right-5 rounded-full bg-primary px-3 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-primary-foreground shadow">
+                        ${p.badge}
+                      </div>`
+                    : ""
+                }
+
+                <div>
+                  <!-- Topo do Card -->
+                  <div class="flex items-start gap-4">
+                    ${getProductVisualBadge(p)}
+                    <div class="min-w-0 flex-1">
+                      <span class="text-[11px] font-bold uppercase tracking-wider text-primary">
+                        ${p.unitLabel}
+                      </span>
+                      <h3 class="mt-0.5 text-lg font-extrabold leading-snug text-white">
+                        ${p.name}
+                      </h3>
+                      <p class="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        ${p.subtitle}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Status de Estoque -->
+                  <div class="mt-4 flex items-center gap-2 rounded-lg border border-border/80 bg-background/60 px-3 py-1.5 text-[11px] text-emerald-400">
+                    <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                    <span class="font-medium">${p.stockStatus}</span>
+                  </div>
+
+                  <!-- Destaques do Produto -->
+                  <ul class="mt-4 space-y-1.5 text-xs text-muted-foreground">
+                    ${(p.highlights || [])
+                      .map(
+                        (h) => `
+                        <li class="flex items-center gap-2">
+                          <i data-lucide="check" class="h-3.5 w-3.5 shrink-0 text-primary"></i>
+                          <span>${h}</span>
+                        </li>
+                      `
+                      )
+                      .join("")}
+                  </ul>
+                </div>
+
+                <!-- Base do Card: Quantidade + Preço + Botões -->
+                <div class="mt-6 border-t border-border pt-4">
+                  ${
+                    !isConsult
+                      ? `
+                      <!-- Presets rápidos de quantidade -->
+                      <div class="mb-3 flex items-center justify-between gap-1.5">
+                        <span class="text-[11px] font-semibold text-muted-foreground">Qtd rápida:</span>
+                        <div class="flex flex-wrap gap-1">
+                          ${(p.quickPresets || [1, 5, 10])
+                            .map(
+                              (preset) => `
+                              <button
+                                type="button"
+                                data-preset-product="${p.id}"
+                                data-preset-val="${preset}"
+                                class="rounded-md border px-2 py-0.5 text-[11px] font-bold transition-colors ${
+                                  qty === preset
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-white"
+                                }"
+                              >
+                                ${preset}x
+                              </button>
+                            `
+                            )
+                            .join("")}
+                        </div>
+                      </div>
+                    `
+                      : ""
+                  }
+
+                  <!-- Linha de Controle de Quantidade e Preço -->
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center rounded-xl border border-border bg-background">
+                      <button
+                        type="button"
+                        data-qty-dec="${p.id}"
+                        class="px-3 py-2 text-sm font-bold text-muted-foreground transition-colors hover:text-white"
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min="${p.minQty || 1}"
+                        value="${qty}"
+                        data-qty-input="${p.id}"
+                        class="w-12 bg-transparent text-center text-sm font-extrabold text-white focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        data-qty-inc="${p.id}"
+                        class="px-3 py-2 text-sm font-bold text-muted-foreground transition-colors hover:text-white"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <div class="text-right">
+                      ${
+                        isConsult
+                          ? `
+                            <p class="text-xl font-black text-white">${p.customPriceLabel || "Sob Consulta"}</p>
+                            <p class="text-[11px] font-semibold text-primary">Cotação imediata</p>
+                          `
+                          : `
+                            <p class="text-2xl font-black text-white">${formatBRL(totalPix)}</p>
+                            <p class="text-[11px] text-muted-foreground">
+                              no PIX <span class="line-through opacity-75">${formatBRL(totalStandard)}</span>
+                            </p>
+                          `
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Botões de Ação -->
+                  <div class="mt-4 grid grid-cols-5 gap-2">
+                    <button
+                      type="button"
+                      data-add-cart="${p.id}"
+                      class="glow-btn col-span-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-3 text-xs font-bold text-primary-foreground"
+                    >
+                      <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                      <span>Adicionar</span>
+                    </button>
+                    <button
+                      type="button"
+                      data-buy-now="${p.id}"
+                      class="col-span-2 inline-flex items-center justify-center gap-1 rounded-lg border border-primary/50 bg-background/80 px-3 py-3 text-xs font-bold text-white transition-colors hover:border-primary hover:bg-primary/15"
+                    >
+                      <span>Comprar Já</span>
+                      <i data-lucide="arrow-right" class="h-3.5 w-3.5 text-primary"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+
+        lucide.createIcons();
+        bindProductCardEvents();
+      }
+
+      function bindProductCardEvents() {
+        // Botões de preset rápido
+        document.querySelectorAll("[data-preset-product]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const pid = btn.getAttribute("data-preset-product");
+            const val = parseInt(btn.getAttribute("data-preset-val"), 10) || 1;
+            state.quantities[pid] = val;
+            renderProductsGrid();
+          });
+        });
+
+        // Diminuir quantidade
+        document.querySelectorAll("[data-qty-dec]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const pid = btn.getAttribute("data-qty-dec");
+            const prod = STORE.products.find((p) => p.id === pid);
+            const min = prod?.minQty || 1;
+            const step = prod?.stepQty || 1;
+            state.quantities[pid] = Math.max(min, (state.quantities[pid] || min) - step);
+            renderProductsGrid();
+          });
+        });
+
+        // Aumentar quantidade
+        document.querySelectorAll("[data-qty-inc]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const pid = btn.getAttribute("data-qty-inc");
+            const prod = STORE.products.find((p) => p.id === pid);
+            const step = prod?.stepQty || 1;
+            state.quantities[pid] = (state.quantities[pid] || 1) + step;
+            renderProductsGrid();
+          });
+        });
+
+        // Digitar quantidade manual
+        document.querySelectorAll("[data-qty-input]").forEach((inp) => {
+          inp.addEventListener("change", () => {
+            const pid = inp.getAttribute("data-qty-input");
+            const prod = STORE.products.find((p) => p.id === pid);
+            const min = prod?.minQty || 1;
+            const val = parseInt(inp.value, 10);
+            state.quantities[pid] = isNaN(val) || val < min ? min : val;
+            renderProductsGrid();
+          });
+        });
+
+        // Adicionar ao carrinho
+        document.querySelectorAll("[data-add-cart]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const pid = btn.getAttribute("data-add-cart");
+            addToCart(pid, false);
+          });
+        });
+
+        // Comprar Já (adiciona e abre o carrinho para finalizar)
+        document.querySelectorAll("[data-buy-now]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const pid = btn.getAttribute("data-buy-now");
+            addToCart(pid, true);
+          });
+        });
+      }
+
+      // Lógica do Carrinho
+      function addToCart(productId, openDrawerAfter = false) {
+        const product = STORE.products.find((p) => p.id === productId);
+        if (!product) return;
+
+        const game = STORE.games.find((g) => g.id === product.gameId);
+        const league = (game?.leagues || []).find((l) => l.id === state.activeLeagueId) || (game?.leagues || [])[0];
+        const qty = state.quantities[productId] || product.minQty || 1;
+
+        const existingIndex = state.cart.findIndex(
+          (item) => item.product.id === product.id && item.league?.id === league?.id
+        );
+
+        if (existingIndex >= 0) {
+          state.cart[existingIndex].qty += qty;
+        } else {
+          state.cart.push({
+            product,
+            game,
+            league,
+            qty,
+          });
+        }
+
+        renderCart();
+        showToast(`${qty}x ${product.name} adicionado ao pedido!`);
+
+        if (openDrawerAfter) {
+          openCartDrawer();
+        }
+      }
+
+      function renderCart() {
+        const badge = document.getElementById("cart-count-badge");
+        const listEl = document.getElementById("cart-items-list");
+        const subtotalEl = document.getElementById("cart-subtotal-label");
+        const discountEl = document.getElementById("cart-discount-label");
+        const totalEl = document.getElementById("cart-total-label");
+        const paymentSelect = document.getElementById("checkout-payment");
+
+        const totalItemsCount = state.cart.reduce((acc, item) => acc + item.qty, 0);
+        badge.textContent = state.cart.length;
+
+        if (state.cart.length === 0) {
+          listEl.innerHTML = `
+            <div class="flex h-64 flex-col items-center justify-center text-center text-muted-foreground">
+              <i data-lucide="shopping-cart" class="mb-3 h-10 w-10 opacity-40"></i>
+              <p class="text-sm font-semibold text-white">Seu carrinho está vazio</p>
+              <p class="mt-1 text-xs">Adicione Currency, Itens ou Services do catálogo para montar seu pedido.</p>
+            </div>
+          `;
+          subtotalEl.textContent = "R$ 0,00";
+          discountEl.textContent = "- R$ 0,00";
+          totalEl.textContent = "R$ 0,00";
+          lucide.createIcons();
+          return;
+        }
+
+        let subtotal = 0;
+        let hasConsultItems = false;
+
+        listEl.innerHTML = state.cart
+          .map((item, idx) => {
+            const isConsult = !item.product.pricePerUnit || item.product.pricePerUnit <= 0;
+            if (isConsult) hasConsultItems = true;
+            const lineTotal = isConsult ? 0 : item.product.pricePerUnit * item.qty;
+            subtotal += lineTotal;
+
+            return `
+              <div class="rounded-xl border border-border bg-background/90 p-3.5">
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-primary">
+                      ${item.game?.shortName || ""} • ${item.league?.name || ""}
+                    </span>
+                    <h4 class="text-sm font-bold text-white">${item.product.name}</h4>
+                    <p class="text-xs text-muted-foreground">${item.qty}x (${item.product.unitLabel})</p>
+                  </div>
+                  <button
+                    type="button"
+                    data-remove-cart="${idx}"
+                    class="rounded-md p-1 text-muted-foreground hover:bg-card hover:text-red-400"
+                    title="Remover item"
+                  >
+                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                  </button>
+                </div>
+                <div class="mt-2 flex items-center justify-between border-t border-border/60 pt-2 text-xs">
+                  <div class="flex items-center gap-1.5">
+                    <button type="button" data-cart-dec="${idx}" class="rounded border border-border px-2 py-0.5 font-bold hover:border-primary">-</button>
+                    <span class="font-bold text-white">${item.qty}</span>
+                    <button type="button" data-cart-inc="${idx}" class="rounded border border-border px-2 py-0.5 font-bold hover:border-primary">+</button>
+                  </div>
+                  <span class="font-extrabold text-primary">
+                    ${isConsult ? "Sob Consulta" : formatBRL(lineTotal)}
+                  </span>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+
+        const isPix = paymentSelect.value.includes("PIX");
+        const discount = isPix ? subtotal * (STORE.settings.pixDiscountPercent / 100) : 0;
+        const finalTotal = subtotal - discount;
+
+        subtotalEl.textContent = formatBRL(subtotal) + (hasConsultItems ? " + Sob Consulta" : "");
+        discountEl.textContent = `- ${formatBRL(discount)}`;
+        totalEl.textContent =
+          subtotal > 0
+            ? formatBRL(finalTotal) + (hasConsultItems ? " + Cotação" : "")
+            : "Sob Consulta";
+
+        lucide.createIcons();
+
+        listEl.querySelectorAll("[data-remove-cart]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const idx = parseInt(btn.getAttribute("data-remove-cart"), 10);
+            state.cart.splice(idx, 1);
+            renderCart();
+          });
+        });
+
+        listEl.querySelectorAll("[data-cart-dec]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const idx = parseInt(btn.getAttribute("data-cart-dec"), 10);
+            if (state.cart[idx].qty > 1) {
+              state.cart[idx].qty -= 1;
+            } else {
+              state.cart.splice(idx, 1);
+            }
+            renderCart();
+          });
+        });
+
+        listEl.querySelectorAll("[data-cart-inc]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const idx = parseInt(btn.getAttribute("data-cart-inc"), 10);
+            state.cart[idx].qty += 1;
+            renderCart();
+          });
+        });
+      }
+
+      // Gera texto formatado do pedido para WhatsApp / Discord
+      function buildOrderMessage() {
+        const ign = document.getElementById("checkout-ign").value.trim() || "Informarei no chat";
+        const payment = document.getElementById("checkout-payment").value;
+        const isPix = payment.includes("PIX");
+
+        let subtotal = 0;
+        let hasConsult = false;
+
+        const lines = state.cart.map((item, i) => {
+          const isConsult = !item.product.pricePerUnit || item.product.pricePerUnit <= 0;
+          if (isConsult) hasConsult = true;
+          const lineTotal = isConsult ? 0 : item.product.pricePerUnit * item.qty;
+          subtotal += lineTotal;
+          return `${i + 1}. *[${item.game?.shortName} - ${item.league?.name}]* ${item.qty}x ${item.product.name} (${
+            item.product.unitLabel
+          }) — ${isConsult ? "Sob Consulta" : formatBRL(lineTotal)}`;
+        });
+
+        const discount = isPix ? subtotal * (STORE.settings.pixDiscountPercent / 100) : 0;
+        const finalTotal = subtotal - discount;
+
+        return [
+          `🔥 *NOVO PEDIDO — PHOENIXSTORE (CURRENCY & SERVICES)*`,
+          ``,
+          ` *Itens do Pedido:*`,
+          ...lines,
+          ``,
+          `👤 *Personagem (IGN):* ${ign}`,
+          `💳 *Pagamento:* ${payment}`,
+          `💰 *Total Estimado:* ${
+            subtotal > 0 ? formatBRL(finalTotal) + (hasConsult ? " + Itens Sob Consulta" : "") : "Sob Consulta"
+          }`,
+          ``,
+          `Aguardo confirmação para receber no Hideout!`,
+        ].join("\n");
+      }
+
+      // Controle de abrir/fechar Drawer do Carrinho
+      const cartBackdrop = document.getElementById("cart-backdrop");
+      const cartDrawer = document.getElementById("cart-drawer");
+
+      function openCartDrawer() {
+        cartBackdrop.classList.remove("hidden");
+        cartDrawer.classList.remove("translate-x-full");
+      }
+
+      function closeCartDrawer() {
+        cartBackdrop.classList.add("hidden");
+        cartDrawer.classList.add("translate-x-full");
+      }
+
+      document.getElementById("open-cart-btn").addEventListener("click", openCartDrawer);
+      document.getElementById("close-cart-btn").addEventListener("click", closeCartDrawer);
+      cartBackdrop.addEventListener("click", closeCartDrawer);
+      document.getElementById("checkout-payment").addEventListener("change", renderCart);
+
+      // Finalizar no WhatsApp
+      document.getElementById("checkout-whatsapp-btn").addEventListener("click", () => {
+        if (state.cart.length === 0) {
+          showToast("Adicione pelo menos 1 item ao carrinho primeiro!");
+          return;
+        }
+        const msg = buildOrderMessage();
+        const url = `https://wa.me/${STORE.settings.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+        window.open(url, "_blank", "noopener,noreferrer");
+      });
+
+      // Copiar Pedido & Abrir Discord
+      document.getElementById("checkout-discord-btn").addEventListener("click", () => {
+        if (state.cart.length === 0) {
+          showToast("Adicione pelo menos 1 item ao carrinho primeiro!");
+          return;
+        }
+        const msg = buildOrderMessage();
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(msg).catch(() => {});
+        }
+        showToast("Resumo do pedido copiado! Abrindo Discord...");
+        setTimeout(() => {
+          window.open(STORE.settings.discordUrl, "_blank", "noopener,noreferrer");
+        }, 500);
+      });
+
+      // Eventos de filtro e busca
+      document.getElementById("league-select").addEventListener("change", (e) => {
+        state.activeLeagueId = e.target.value;
+        renderFilterBanner();
+      });
+
+      document.getElementById("product-search").addEventListener("input", (e) => {
+        state.searchQuery = e.target.value;
+        renderProductsGrid();
+      });
+
+      // Links do menu topo que trocam de categoria
+      document.querySelectorAll("[data-nav-cat]").forEach((link) => {
+        link.addEventListener("click", () => {
+          const catId = link.getAttribute("data-nav-cat");
+          state.activeCategoryId = catId;
+          renderAll();
+        });
+      });
+
+      // Toast helper
+      let toastTimer = null;
+      function showToast(text) {
+        const toast = document.getElementById("toast-notification");
+        const msg = document.getElementById("toast-message");
+        msg.textContent = text;
+        toast.classList.remove("translate-y-10", "opacity-0");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.classList.add("translate-y-10", "opacity-0");
+        }, 2600);
+      }
+
+      // Accordion do FAQ
+      const faqList = document.getElementById("faq-list");
+      if (faqList) {
+        faqList.addEventListener("click", (e) => {
+          const trigger = e.target.closest(".faq-trigger");
+          if (!trigger) return;
+          const item = trigger.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          document.querySelectorAll(".faq-item.open").forEach((el) => el.classList.remove("open"));
+          if (!isOpen) item.classList.add("open");
+        });
+      }
+
+      function renderAll() {
+        renderGameTabs();
+        renderLeagueSelect();
+        renderCategoryTabs();
+        renderFilterBanner();
+        renderProductsGrid();
+        renderCart();
+      }
+
+      // Inicialização
+      renderAll();
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("in");
+              io.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+    </script>
+  </body>
+</html>
