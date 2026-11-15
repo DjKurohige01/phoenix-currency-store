@@ -102,6 +102,15 @@
         broadcastChannel.postMessage(eventObj);
       } catch (_) {}
     }
+    if (supabaseRealtimeChannel) {
+      try {
+        supabaseRealtimeChannel.send({
+          type: "broadcast",
+          event: "store-event",
+          payload: eventObj,
+        });
+      } catch (_) {}
+    }
     notifyListeners(eventObj);
   }
 
@@ -392,16 +401,29 @@
   ensureSeedData();
 
   // ==========================================================================
-  // CONEXÃO SUPABASE (OPCIONAL / HÍBRIDA)
+  // CONEXÃO SUPABASE OFICIAL (CONECTADO AO PROJETO: vzwuhkjspssqbstblloa)
+  // Organização: DjKurohige01's Org (sa-east-1 • São Paulo)
   // ==========================================================================
+  const DEFAULT_SUPABASE_CONFIG = {
+    url: "https://vzwuhkjspssqbstblloa.supabase.co",
+    anonKey:
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6d3Voa2pzcHNzcWJzdGJsbG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ3NzgxODYsImV4cCI6MjExMDM1NDE4Nn0.jlfnIG8Qs8x5tgjbTyXdatSSPQXyv0N6LYQCjH83Y2E",
+    publishableKey: "sb_publishable_ySKxC7mYFDH4iUCvpFonnA_DMwCrKJN",
+    projectId: "vzwuhkjspssqbstblloa",
+    orgName: "DjKurohige01's Org",
+    region: "sa-east-1 (São Paulo)",
+    connected: true,
+  };
+
   let supabaseClient = null;
+  let supabaseRealtimeChannel = null;
 
   function getSupabaseConfig() {
-    return safeJsonParse(localStorage.getItem(STORAGE_KEYS.SUPABASE_CONFIG), {
-      url: "",
-      anonKey: "",
-      connected: false,
-    });
+    const saved = safeJsonParse(localStorage.getItem(STORAGE_KEYS.SUPABASE_CONFIG), null);
+    if (saved && saved.url && saved.anonKey) {
+      return { ...DEFAULT_SUPABASE_CONFIG, ...saved, connected: true };
+    }
+    return DEFAULT_SUPABASE_CONFIG;
   }
 
   function initSupabaseIfConfigured() {
@@ -409,6 +431,64 @@
     if (cfg && cfg.url && cfg.anonKey && window.supabase && typeof window.supabase.createClient === "function") {
       try {
         supabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey);
+
+        // Canal Realtime no Supabase para sincronizar eventos entre máquinas diferentes
+        try {
+          supabaseRealtimeChannel = supabaseClient
+            .channel("phoenix-store-live")
+            .on("broadcast", { event: "store-event" }, (msg) => {
+              const ev = msg && msg.payload;
+              if (!ev) return;
+              if (ev.type === "NEW_ORDER_PAID" && ev.payload && ev.payload.order) {
+                const orders = getAllOrdersInternal();
+                if (!orders.some((o) => o.orderCode === ev.payload.order.orderCode)) {
+                  orders.unshift(ev.payload.order);
+                  saveAllOrdersInternal(orders);
+                }
+              } else if (ev.type === "NEW_CHAT_MESSAGE" && ev.payload && ev.payload.message) {
+                const messages = getAllMessagesInternal();
+                if (!messages.some((m) => m.id === ev.payload.message.id)) {
+                  messages.push(ev.payload.message);
+                  saveAllMessagesInternal(messages);
+                }
+              } else if (ev.type === "ORDER_STATUS_UPDATED" && ev.payload && ev.payload.orderCode) {
+                const orders = getAllOrdersInternal();
+                const idx = orders.findIndex((o) => o.orderCode === ev.payload.orderCode);
+                if (idx >= 0) {
+                  orders[idx].deliveryStatus = ev.payload.deliveryStatus;
+                  if (ev.payload.sellerName) orders[idx].sellerName = ev.payload.sellerName;
+                  saveAllOrdersInternal(orders);
+                }
+              }
+              notifyListeners(ev);
+            })
+            .subscribe();
+        } catch (_) {}
+
+        // Sincroniza preços e estoques salvos na tabela public.products do Supabase
+        supabaseClient
+          .from("products")
+          .select("id, price_per_unit, min_qty, stock_status, custom_price_label, badge")
+          .then(({ data, error }) => {
+            if (!error && Array.isArray(data) && data.length > 0) {
+              const overrides = getProductOverrides();
+              data.forEach((row) => {
+                if (!overrides[row.id]) {
+                  overrides[row.id] = {
+                    pricePerUnit: Number(row.price_per_unit),
+                    minQty: row.min_qty || 1,
+                    stockStatus: row.stock_status || "Em Estoque",
+                    customPriceLabel: row.custom_price_label || null,
+                    badge: row.badge || null,
+                  };
+                }
+              });
+              localStorage.setItem(STORAGE_KEYS.PRODUCT_OVERRIDES, JSON.stringify(overrides));
+              notifyListeners({ type: "CATALOG_UPDATED", timestamp: Date.now() });
+            }
+          })
+          .catch(() => {});
+
         return true;
       } catch (err) {
         console.warn("Erro ao iniciar cliente Supabase:", err);
@@ -417,6 +497,8 @@
     supabaseClient = null;
     return false;
   }
+
+  initSupabaseIfConfigured();
 
   function saveSupabaseConfig(url, anonKey) {
     const currentUser = getCurrentUser();
